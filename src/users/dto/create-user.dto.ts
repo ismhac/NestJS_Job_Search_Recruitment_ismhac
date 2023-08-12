@@ -1,1 +1,3 @@
-export class CreateUserDto {}
+
+// data transfer object
+export class CreateUserDto { }
