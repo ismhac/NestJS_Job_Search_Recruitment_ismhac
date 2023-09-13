@@ -19,7 +19,7 @@ import { UsersModule } from './users/users.module';
       isGlobal: true,
     }),
 
-    UsersModule
+    UsersModule, //users
   ],
   controllers: [AppController],
   providers: [AppService],
