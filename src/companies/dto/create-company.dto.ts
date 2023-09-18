@@ -10,5 +10,4 @@ export class CreateCompanyDto {
 
     @IsNotEmpty({ message: 'Description không được để trống' })
     description: string;
-
 }
