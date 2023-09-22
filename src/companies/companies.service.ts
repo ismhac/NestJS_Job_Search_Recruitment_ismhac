@@ -26,7 +26,7 @@ export class CompaniesService {
   }
 
   async findAll(currentPage: number, limit: number, queryString: string) {
-    const { filter, sort, projection, population } = aqp(queryString);
+    const { filter, sort, population } = aqp(queryString);
     delete filter.page;
     delete filter.limit;
     let offset = (+currentPage - 1) * (+limit);
@@ -38,8 +38,7 @@ export class CompaniesService {
     const result = await this.companyModel.find(filter)
       .skip(offset)
       .limit(defaultLimit)
-      // @ts-ignore: Unreachable code error
-      .sort(sort)
+      .sort(sort as any)
       .populate(population)
       .exec();
 
