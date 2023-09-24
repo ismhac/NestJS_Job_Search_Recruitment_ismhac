@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -57,12 +57,10 @@ export class CompaniesService {
 
   findOne(id: string) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return 'not found company';
+      throw new BadRequestException(`Not found company with id: ${id}`);
     }
 
-    return this.companyModel.findOne({
-      _id: id
-    })
+    return this.companyModel.findById(id);
   }
 
   async update(id: string, updateCompanyDto: UpdateCompanyDto, @UserDecorator() user: IUser) {
@@ -80,7 +78,7 @@ export class CompaniesService {
 
   async remove(id: string, @UserDecorator() user: IUser) {
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return 'not found company';
+      throw new BadRequestException(`Not found company with id: ${id}`);
     }
     await this.companyModel.updateOne(
       { _id: id },
