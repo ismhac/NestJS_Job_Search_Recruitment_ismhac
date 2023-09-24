@@ -25,6 +25,12 @@ export class UsersService {
     return hash;
   }
 
+  updateUserToken = async (refreshToken: string, _id: string) => {
+    return await this.userModel.updateOne(
+      { _id },
+      { refreshToken }
+    )
+  }
 
   // name , email , password, age, gender, address
   async register(user: RegisterUserDto) {
