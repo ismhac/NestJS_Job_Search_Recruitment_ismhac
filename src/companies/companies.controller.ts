@@ -20,8 +20,8 @@ export class CompaniesController {
   @Get()
   @ResponseMessage('Get all companies successfully')
   findAll(
-    @Query('page') currentPage: string, // const currentPage: string = req.query.page
-    @Query('limit') limit: string,
+    @Query('current') currentPage: string, // const currentPage: string = req.query.page
+    @Query('pageSize') limit: string,
     @Query() queryString: string
   ) {
     return this.companiesService.findAll(+currentPage, +limit, queryString);

@@ -21,7 +21,7 @@ export class AuthController {
         @Res({ passthrough: true }) response: Response,
         @User() user: IUser
     ) {
-        return this.authService.logout(response, user)
+        return this.authService.logout(response, user);
     }
 
     @Public()
