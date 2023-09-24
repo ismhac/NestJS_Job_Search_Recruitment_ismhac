@@ -4,7 +4,7 @@ import { Public, ResponseMessage, User } from "src/decorator/customize";
 import { LocalAuthGuard } from "./local-auth.guard";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 import { RegisterUserDto } from "src/users/dto/create-user.dto";
-import { Response } from "express";
+import { Request, Response } from "express";
 import { IUser } from "src/users/users.interface";
 
 
@@ -14,6 +14,13 @@ export class AuthController {
         private authService: AuthService
     ) { }
 
+    @Public()
+    @Get('/refresh')
+    @ResponseMessage("Get user by refresh token")
+    handleRefreshToken(@Req() request: Request, @Res({ passthrough: true }) response: Response) { // req.user
+        const refreshToken = request.cookies["refresh_token"];
+        return this.authService.processNewToken(refreshToken, response);
+    }
 
     @Get('/account')
     @ResponseMessage("Get user information success")

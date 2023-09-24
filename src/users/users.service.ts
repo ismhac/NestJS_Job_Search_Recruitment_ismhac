@@ -25,6 +25,12 @@ export class UsersService {
     return hash;
   }
 
+  findUserByToken = async (refreshToken: string) => {
+    return await this.userModel.findOne(
+      { refreshToken }
+    )
+  }
+
   updateUserToken = async (refreshToken: string, _id: string) => {
     return await this.userModel.updateOne(
       { _id },
