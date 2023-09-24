@@ -17,6 +17,8 @@ export class CompaniesController {
     return this.companiesService.create(createCompanyDto, user);
   }
 
+
+  @Public()
   @Get()
   @ResponseMessage('Get all companies successfully')
   findAll(

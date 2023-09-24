@@ -3,29 +3,17 @@ import { IsArray, IsBoolean, IsDate, IsNotEmpty, IsNotEmptyObject, IsObject, IsS
 import mongoose from "mongoose";
 
 class Company {
-    @IsNotEmpty({ message: '_id id is required' })
+    @IsNotEmpty({ message: '_id is required' })
     _id: mongoose.Schema.Types.ObjectId;
 
     @IsNotEmpty({ message: `Company's name is required` })
     name: string;
+
+    @IsNotEmpty({ message: `Company's logo is required` })
+    logo: string;
 }
 
-/**
- * - name: string
-- skills: string [ ]
-- company: object { _id, name}
-- location: string
-- salary: number
-- quantity: number
-- level: string
-- description : html <string>
-- startDate: date
-- endDate: date
-- isActive: boolean
 
- * 
- * 
- */
 export class CreateJobDto {
     @IsNotEmpty({ message: 'Name is required' })
     name: string;

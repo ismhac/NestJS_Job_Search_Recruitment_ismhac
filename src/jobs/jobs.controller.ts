@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Query } from '@
 import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
-import { ResponseMessage, User } from 'src/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
 
 @Controller('jobs')
@@ -15,6 +15,7 @@ export class JobsController {
     return this.jobsService.create(createJobDto, user);
   }
 
+  @Public()
   @Get()
   @ResponseMessage('Get all jobs successfully')
   findAll(
@@ -25,6 +26,7 @@ export class JobsController {
     return this.jobsService.findAll(+currentPage, +limit, queryString);
   }
 
+  @Public()
   @Get(':id')
   @ResponseMessage('Get a job successfully')
   findOne(@Param('id') id: string) {
