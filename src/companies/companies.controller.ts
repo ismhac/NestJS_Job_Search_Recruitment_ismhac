@@ -11,8 +11,8 @@ export class CompaniesController {
 
 
   // name, address, description
-  @ResponseMessage('Create a new company successfully')
   @Post()
+  @ResponseMessage('Create a new company successfully')
   create(@Body() createCompanyDto: CreateCompanyDto, @User() user: IUser) {
     return this.companiesService.create(createCompanyDto, user);
   }

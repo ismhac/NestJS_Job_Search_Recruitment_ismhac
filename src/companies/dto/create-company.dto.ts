@@ -2,12 +2,12 @@ import { IsEmail, IsNotEmpty } from "class-validator";
 
 // data transfer object
 export class CreateCompanyDto {
-    @IsNotEmpty({ message: 'Name không được để trống' })
+    @IsNotEmpty({ message: 'Name is required' })
     name: string;
 
-    @IsNotEmpty({ message: 'Address không được để trống' })
+    @IsNotEmpty({ message: 'Address is required' })
     address: string;
 
-    @IsNotEmpty({ message: 'Description không được để trống' })
+    @IsNotEmpty({ message: 'Description is required' })
     description: string;
 }
