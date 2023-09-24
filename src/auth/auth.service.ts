@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { IUser } from 'src/users/users.interface';
+import { RegisterUserDto } from 'src/users/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -9,6 +10,15 @@ export class AuthService {
         private usersService: UsersService,
         private jwtService: JwtService
     ) { }
+
+
+    async register(user: RegisterUserDto) {
+        let newUser = await this.usersService.register(user)
+        return {
+            _id: newUser?._id,
+            createdAt: newUser?.createdAt
+        }
+    }
 
     // username/ pass là 2 tham số thư viện passport ném về
     async validateUser(username: string, pass: string): Promise<any> {

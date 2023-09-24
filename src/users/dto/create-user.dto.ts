@@ -34,6 +34,9 @@ export class CreateUserDto {
     @IsNotEmpty({ message: 'Address is required' })
     address: string;
 
+    @IsNotEmpty({ message: 'Role is required' })
+    role: string;
+
     @IsNotEmptyObject()
     @IsObject()
     @ValidateNested()
@@ -61,13 +64,4 @@ export class RegisterUserDto {
 
     @IsNotEmpty({ message: 'Address is required' })
     address: string;
-
-    @IsNotEmpty({ message: 'Company is required' })
-    role: string;
-
-    @IsNotEmptyObject()
-    @IsObject()
-    @ValidateNested()
-    @Type(() => Company)
-    company: Company;
 }
