@@ -15,6 +15,12 @@ export class AuthService {
         private configService: ConfigService
     ) { }
 
+    logout = async (response: Response, user: IUser) => {
+        await this.usersService.updateUserToken("", user._id);
+        response.clearCookie("refresh_token");
+        return "OK"
+    }
+
     processNewToken = async (refreshToken: string, response: Response) => {
         try {
             this.jwtService.verify(refreshToken, {

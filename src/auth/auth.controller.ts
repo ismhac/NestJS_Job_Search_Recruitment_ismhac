@@ -14,6 +14,16 @@ export class AuthController {
         private authService: AuthService
     ) { }
 
+
+    @Post('/logout')
+    @ResponseMessage("Logout User")
+    handleLogout(
+        @Res({ passthrough: true }) response: Response,
+        @User() user: IUser
+    ) {
+        return this.authService.logout(response, user)
+    }
+
     @Public()
     @Get('/refresh')
     @ResponseMessage("Get user by refresh token")
