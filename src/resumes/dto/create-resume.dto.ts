@@ -1,25 +1,4 @@
-
-/* 
-Model resume:
-- email: string
-- userId: objectId
-- url: string
-- status: string// PENDING-REVIEWING-APPROVED-REJECTED
-- companyId: objectId
-- jobId: objectId
-- history: [
-{ status: string, updatedAt: Date, updatedBy: { _id, email} }
-]
-- createdAt: Date
-- updatedAt: Date
-- deletedAt: Date
-- isDeleted: boolean
-- createdBy: {_id, email},
-- updatedBy: {_id, email},
-- deletedBy: {_id, email}
-*/
-
-import { IsMongoId, IsNotEmpty, isMongoId } from "class-validator";
+import { IsMongoId, IsNotEmpty } from "class-validator";
 import mongoose from "mongoose";
 
 export class CreateResumeDto {
