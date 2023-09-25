@@ -10,7 +10,6 @@ import { CompaniesModule } from './companies/companies.module';
 import { JobsModule } from './jobs/jobs.module';
 import { FilesModule } from './files/files.module';
 import { ResumesModule } from './resumes/resumes.module';
-import { PermissionModule } from './permission/permission.module';
 import { PermissionsModule } from './permissions/permissions.module';
 import { RolesModule } from './roles/roles.module';
 
@@ -31,23 +30,21 @@ import { RolesModule } from './roles/roles.module';
       isGlobal: true,
     }),
 
-    UsersModule,
+    UsersModule,  // import UsersModule
 
-    AuthModule,
+    AuthModule,  // import AuthModule
 
-    CompaniesModule,
+    CompaniesModule, // import CompaniesModule
 
-    JobsModule,
+    JobsModule, // import JobsModule
 
-    FilesModule,
+    FilesModule, // import FilesModule
 
-    ResumesModule,
+    ResumesModule, // import ResumesModule
 
-    PermissionModule,
+    PermissionsModule,  // import PermissionsModule
 
-    PermissionsModule,
-
-    RolesModule, //users
+    RolesModule,  // import RolesModule
   ],
   controllers: [AppController],
   providers: [

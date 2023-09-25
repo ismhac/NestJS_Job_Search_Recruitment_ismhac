@@ -59,13 +59,10 @@ export class UsersService {
     return newRegister;
   }
 
-  /**name, email, password
-  age, gender, address, role
-  company: object {_id, name}
- */
   async create(createUserDto: CreateUserDto, @UserDecorator() user: IUser) {
 
-    const { name, email, password, age, gender, address, role, company } = createUserDto;
+    const { name, email, password, age,
+      gender, address, role, company } = createUserDto;
     // check email
     const isExist = await this.userModel.findOne({ email });
     if (isExist) {
@@ -73,14 +70,9 @@ export class UsersService {
     }
     const hashPassword = this.getHashPassword(password)
     let newUser = await this.userModel.create({
-      name,
-      email,
+      name, email,
       password: hashPassword,
-      age,
-      gender,
-      address,
-      role,
-      company,
+      age, gender, address, role, company,
       createdBy: {
         _id: user._id,
         email: user.email
@@ -100,7 +92,7 @@ export class UsersService {
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
     const result = await this.userModel.find(filter)
-      .select('-password')
+      .select('-password') // exclude password
       .skip(offset)
       .limit(defaultLimit)
       .sort(sort as any)
