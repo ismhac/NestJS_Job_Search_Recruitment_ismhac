@@ -9,6 +9,8 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose/dist/soft-delete-mo
 import { IUser } from './users.interface';
 import aqp from 'api-query-params';
 import { User as UserDecorator } from 'src/decorator/customize';
+import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
+import { USER_ROLE } from 'src/databases/sample';
 
 
 @Injectable()
@@ -16,7 +18,10 @@ export class UsersService {
 
   constructor(
     @InjectModel(UserModel.name)
-    private userModel: SoftDeleteModel<UserDocument>
+    private userModel: SoftDeleteModel<UserDocument>,
+
+    @InjectModel(Role.name)
+    private roleModule: SoftDeleteModel<RoleDocument>
   ) { }
 
   getHashPassword = (password: string) => {
@@ -28,7 +33,10 @@ export class UsersService {
   findUserByToken = async (refreshToken: string) => {
     return await this.userModel.findOne(
       { refreshToken }
-    )
+    ).populate({
+      path: "role",
+      select: { name: 1 }
+    });
   }
 
   updateUserToken = async (refreshToken: string, _id: string) => {
@@ -46,6 +54,10 @@ export class UsersService {
     if (isExist) {
       throw new BadRequestException(`Email: ${email} already exists in the system. Please use another email!`)
     }
+
+    // fetch user role
+    const userRole = await this.roleModule.findOne({ name: USER_ROLE });
+
     const hashPassword = this.getHashPassword(password);
     let newRegister = await this.userModel.create({
       name,
@@ -54,7 +66,7 @@ export class UsersService {
       age,
       gender,
       address,
-      role: "USER"
+      role: userRole?._id
     })
     return newRegister;
   }
@@ -125,7 +137,9 @@ export class UsersService {
   findOneByUsername(username: string) {
     return this.userModel.findOne({
       email: username
-    }).populate({ path: "role", select: { name: 1, permissions: 1, } })
+    }).populate({
+      path: "role", select: { name: 1 }
+    })
   }
 
   isValidPassword(password: string, hash: string) {

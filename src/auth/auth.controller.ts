@@ -6,12 +6,14 @@ import { JwtAuthGuard } from "./jwt-auth.guard";
 import { RegisterUserDto } from "src/users/dto/create-user.dto";
 import { Request, Response } from "express";
 import { IUser } from "src/users/users.interface";
+import { RolesService } from "src/roles/roles.service";
 
 
 @Controller("auth")
 export class AuthController {
     constructor(
-        private authService: AuthService
+        private authService: AuthService,
+        private roleService: RolesService
     ) { }
 
 
@@ -34,7 +36,9 @@ export class AuthController {
 
     @Get('/account')
     @ResponseMessage("Get user information success")
-    handleGetAccount(@User() user: IUser) { // req.user
+    async handleGetAccount(@User() user: IUser) { // req.user
+        const temp = await this.roleService.findOne(user.role._id) as any; // disable check type
+        user.permissions = temp.permissions;
         return { user }
     }
 

@@ -6,13 +6,15 @@ import { RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { ConfigService } from '@nestjs/config';
 import ms from 'ms';
 import { Response } from "express";
+import { RolesService } from 'src/roles/roles.service';
 
 @Injectable()
 export class AuthService {
     constructor(
         private usersService: UsersService,
         private jwtService: JwtService,
-        private configService: ConfigService
+        private configService: ConfigService,
+        private roleService: RolesService
     ) { }
 
     logout = async (response: Response, user: IUser) => {
@@ -46,6 +48,10 @@ export class AuthService {
                 response.clearCookie("refresh_token");
                 await this.usersService.updateUserToken(refresh_token, _id.toString())
 
+                // fetch user's role
+                const userRole = user.role as unknown as { _id: string, name: string };
+                const temp = await this.roleService.findOne(userRole._id);
+
                 // set refresh_token as cookies
                 response.cookie('refresh_token', refresh_token, {
                     httpOnly: true,
@@ -58,7 +64,8 @@ export class AuthService {
                         _id,
                         name,
                         email,
-                        role
+                        role,
+                        permission: temp?.permissions ?? []
                     }
                 };
 
@@ -92,14 +99,21 @@ export class AuthService {
         if (user) {
             const isValid = this.usersService.isValidPassword(pass, user.password);
             if (isValid === true) {
-                return user;
+                const userRole = user.role as unknown as { _id: string, name: string };
+                const temp = await this.roleService.findOne(userRole._id);
+
+                const objUser = {
+                    ...user.toObject(),
+                    permissions: temp?.permissions ?? [],
+                }
+                return objUser;
             }
         }
         return null;
     }
 
     async login(user: IUser, response: Response) {
-        const { _id, name, email, role } = user;
+        const { _id, name, email, role, permissions } = user;
         const payload = {
             sub: "token login",
             iss: "from server",
@@ -126,7 +140,8 @@ export class AuthService {
                 _id,
                 name,
                 email,
-                role
+                role,
+                permissions
             }
         };
     }
