@@ -20,7 +20,7 @@ export class PermissionsController {
   @Get()
   @ResponseMessage('Permissions fetched successfully')
   findAll(
-    @Query('currentPage') currentPage: string,
+    @Query('current') currentPage: string,
     @Query('pageSize') limit: string,
     @Query() queryString: string
   ) {

@@ -18,6 +18,8 @@ export class RolesService {
 
   async create(createRoleDto: CreateRoleDto, user: IUser) {
     const { name, description, isActive, permissions } = createRoleDto;
+    const isExist = await this.roleModel.findOne({ name });
+    if (isExist) throw new BadRequestException(`Role ${name} is exist`);
     const newRole = await this.roleModel.create({
       name, description, isActive, permissions,
       createdBy: {
@@ -61,7 +63,11 @@ export class RolesService {
     if (!mongoose.Types.ObjectId.isValid(id)) {
       throw new BadRequestException(`Not found role with id: ${id}`)
     }
-    return await this.roleModel.findById(id);
+    return await this.roleModel.findById(id)
+      .populate({
+        path: "permissions",
+        select: { _id: 1, apiPath: 1, name: 1, method: 1, module: 1 }
+      });
   }
 
   async update(id: string, updateRoleDto: UpdateRoleDto, user: IUser) {
@@ -82,6 +88,8 @@ export class RolesService {
       throw new BadRequestException(`Not found role with id: ${id}`)
     }
 
+    const foundRole = await this.roleModel.findById(id);
+    if (foundRole.name === 'ADMIN') throw new BadRequestException(`Can not delete role ADMIN`);
     await this.roleModel.updateOne({ _id: id }, {
       deletedBy: {
         _id: user._id,

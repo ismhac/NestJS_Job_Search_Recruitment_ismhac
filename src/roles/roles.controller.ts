@@ -4,7 +4,7 @@ import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
-import { query } from 'express';
+
 
 @Controller('roles')
 export class RolesController {
@@ -19,7 +19,7 @@ export class RolesController {
   @Get()
   @ResponseMessage('Roles fetched successfully')
   findAll(
-    @Query('currentPage') currentPage: string,
+    @Query('current') currentPage: string,
     @Query('pageSize') limit: string,
     @Query() queryString: string
   ) {
