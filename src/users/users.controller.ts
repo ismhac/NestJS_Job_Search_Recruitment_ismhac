@@ -25,7 +25,7 @@ export class UsersController {
   @ResponseMessage('Get all user success')
   findAll(
     @Query('current') currentPage: string, // const currentPage: string = req.query.page
-    @Query('pageSize') limit: string,
+    @Query('pageSize') limit: string,      // const limit: string = req.query.limit
     @Query() queryString: string
   ) {
     return this.usersService.findAll(+currentPage, +limit, queryString);

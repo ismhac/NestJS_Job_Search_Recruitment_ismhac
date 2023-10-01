@@ -57,12 +57,12 @@ export class RegisterUserDto {
     @IsNotEmpty({ message: 'Password is required' })
     password: string;
 
-    @IsNotEmpty({ message: 'Age is required' })
+    // @IsNotEmpty({ message: 'Age is required' })
     age: number;
 
-    @IsNotEmpty({ message: 'Gender is required' })
+    // @IsNotEmpty({ message: 'Gender is required' })
     gender: string;
 
-    @IsNotEmpty({ message: 'Address is required' })
+    // @IsNotEmpty({ message: 'Address is required' })
     address: string;
 }

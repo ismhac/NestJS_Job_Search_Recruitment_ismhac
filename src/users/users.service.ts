@@ -97,8 +97,8 @@ export class UsersService {
     const { filter, sort, population } = aqp(queryString);
     delete filter.current;
     delete filter.pageSize;
-    let offset = (+currentPage - 1) * (+limit);
-    let defaultLimit = +limit ? +limit : 10;
+    let offset = (currentPage - 1) * (limit);
+    let defaultLimit = limit ? limit : 10;
 
     const totalItems = (await this.userModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);

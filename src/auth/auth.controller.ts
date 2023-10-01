@@ -1,8 +1,8 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { Public, ResponseMessage, User } from "src/decorator/customize";
-import { LocalAuthGuard } from "./local-auth.guard";
-import { JwtAuthGuard } from "./jwt-auth.guard";
+import { LocalAuthGuard } from "./guard/local-auth.guard";
+import { JwtAuthGuard } from "./guard/jwt-auth.guard";
 import { RegisterUserDto } from "src/users/dto/create-user.dto";
 import { Request, Response } from "express";
 import { IUser } from "src/users/users.interface";
@@ -15,7 +15,6 @@ export class AuthController {
         private authService: AuthService,
         private roleService: RolesService
     ) { }
-
 
     @Post('/logout')
     @ResponseMessage("Logout User")

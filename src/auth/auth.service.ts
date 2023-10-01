@@ -93,7 +93,7 @@ export class AuthService {
         }
     }
 
-    // username/ pass là 2 tham số thư viện passport ném về
+    // username/pass là 2 tham số thư viện passport ném về
     async validateUser(username: string, pass: string): Promise<any> {
         const user = await this.usersService.findOneByUsername(username);
         if (user) {
