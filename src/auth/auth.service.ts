@@ -136,6 +136,7 @@ export class AuthService {
 
         return {
             access_token: this.jwtService.sign(payload),
+            refresh_token: refresh_token,
             user: {
                 _id,
                 name,

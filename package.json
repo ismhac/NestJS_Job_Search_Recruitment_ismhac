@@ -18,6 +18,7 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
+    "dev:compodoc": "npx @compodoc/compodoc -p tsconfig.json -s",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
@@ -45,6 +46,7 @@
     "soft-delete-plugin-mongoose": "^1.0.15"
   },
   "devDependencies": {
+    "@compodoc/compodoc": "^1.1.21",
     "@nestjs/cli": "9.4.2",
     "@nestjs/schematics": "9.1.0",
     "@nestjs/testing": "9.0.0",
