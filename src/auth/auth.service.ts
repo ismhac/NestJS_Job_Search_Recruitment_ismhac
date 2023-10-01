@@ -53,13 +53,14 @@ export class AuthService {
                 const temp = await this.roleService.findOne(userRole._id);
 
                 // set refresh_token as cookies
-                response.cookie('refresh_token', refresh_token, {
-                    httpOnly: true,
-                    maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE'))
-                })
+                // response.cookie('refresh_token', refresh_token, {
+                //     httpOnly: true,
+                //     maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE'))
+                // })
 
                 return {
                     access_token: this.jwtService.sign(payload),
+                    refreshToken: refresh_token,
                     user: {
                         _id,
                         name,
@@ -129,10 +130,10 @@ export class AuthService {
         await this.usersService.updateUserToken(refresh_token, _id)
 
         // set refresh_token as cookies
-        response.cookie('refresh_token', refresh_token, {
-            httpOnly: true,
-            maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE'))
-        })
+        // response.cookie('refresh_token', refresh_token, {
+        //     httpOnly: true,
+        //     maxAge: ms(this.configService.get<string>('JWT_REFRESH_EXPIRE'))
+        // })
 
         return {
             access_token: this.jwtService.sign(payload),

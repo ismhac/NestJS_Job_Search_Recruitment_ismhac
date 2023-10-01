@@ -7,6 +7,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { JwtAuthGuard } from './auth/guard/jwt-auth.guard';
 import { TransformInterceptor } from './core/transform.interceptor';
 import cookieParser from 'cookie-parser';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -39,6 +40,16 @@ async function bootstrap() {
     type: VersioningType.URI, // default: /v 
     defaultVersion: ['1', '2'] // => /api/v1 or /api/v2
   });
+
+  // config swagger
+  const config = new DocumentBuilder()
+    .setTitle('RM SWAGGER')
+    .setDescription('The API description')
+    .setVersion('1.0')
+    // .addTag('')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document);
 
   await app.listen(configService.get<string>('PORT'));
 }
