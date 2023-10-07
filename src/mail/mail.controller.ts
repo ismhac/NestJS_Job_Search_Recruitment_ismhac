@@ -1,6 +1,7 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Controller, Get } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { Cron, CronExpression } from '@nestjs/schedule';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { Public, ResponseMessage } from 'src/decorator/customize';
 import { Job, JobDocument } from 'src/jobs/schemas/job.schema';
@@ -21,25 +22,16 @@ export class MailController {
 
   ) { }
 
+
+  @Cron(CronExpression.EVERY_30_SECONDS)
+  testCron() {
+    console.log("==> call me");
+  }
+
   @Get()
   @Public()
   @ResponseMessage("Test email")
   async handleTestEmail() {
-    const jobs = [
-      {
-        name: "ssss",
-        company: "ssss",
-        salary: "80000",
-        skills: ["hih", "nodejs"]
-      },
-      {
-        name: "ssss",
-        company: "ssss",
-        salary: "80000",
-        skills: ["hih", "nodejs"]
-      }
-    ]
-
     const subscribers = await this.subscriberModel.find({});
     for (const subs of subscribers) {
       const subsSkills = subs.skills;

@@ -1,10 +1,11 @@
-import { SetMetadata, createParamDecorator, ExecutionContext } from "@nestjs/common";
-import { } from '@nestjs/common';
+import { ExecutionContext, SetMetadata, createParamDecorator } from "@nestjs/common";
 
 export const IS_PUBLIC_KEY = 'isPublic';
+export const IS_PUBLIC_PERMISSION = 'isPublicPermission';
 
 
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);   // @Public() 
+export const SkipCheckPermission = () => SetMetadata(IS_PUBLIC_PERMISSION, true);   // @SkipCheckPermission()
 
 export const RESPONSE_MESSAGE = 'response_message';
 
@@ -17,3 +18,4 @@ export const User = createParamDecorator(                       // @User()
         return request.user;
     },
 );
+
