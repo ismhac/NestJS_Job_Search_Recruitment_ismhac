@@ -31,6 +31,7 @@ export class MailController {
   @Get()
   @Public()
   @ResponseMessage("Test email")
+  @Cron("0 0 19 * * 0") // 7pm every sunday
   async handleTestEmail() {
     const subscribers = await this.subscriberModel.find({});
     for (const subs of subscribers) {
