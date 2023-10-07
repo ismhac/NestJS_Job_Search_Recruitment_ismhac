@@ -1,13 +1,16 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Controller, Get } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Cron, CronExpression } from '@nestjs/schedule';
+import { Cron } from '@nestjs/schedule';
+import { ApiTags } from '@nestjs/swagger';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { Public, ResponseMessage } from 'src/decorator/customize';
 import { Job, JobDocument } from 'src/jobs/schemas/job.schema';
 import { Subscriber, SubscriberDocument } from 'src/subscribers/schemas/subscriber.schema';
 import { MailService } from './mail.service';
 
+
+@ApiTags('Mail')
 @Controller('mail')
 export class MailController {
   constructor(
@@ -23,10 +26,10 @@ export class MailController {
   ) { }
 
 
-  @Cron(CronExpression.EVERY_30_SECONDS)
-  testCron() {
-    console.log("==> call me");
-  }
+  // @Cron(CronExpression.EVERY_30_SECONDS)
+  // testCron() {
+  //   console.log("==> call me");
+  // }
 
   @Get()
   @Public()

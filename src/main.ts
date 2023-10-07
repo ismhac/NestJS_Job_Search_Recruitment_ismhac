@@ -40,7 +40,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api')
   app.enableVersioning({
     type: VersioningType.URI, // default: /v 
-    defaultVersion: ['1', '2'] // => /api/v1 or /api/v2
+    defaultVersion: ['1'] // => /api/v1 or /api/v2
   });
 
   // config helmet
@@ -48,15 +48,27 @@ async function bootstrap() {
 
   // config swagger
   const config = new DocumentBuilder()
-    .setTitle('RM SWAGGER')
+    .setTitle('RM APIs Document')
     .setDescription('The API description')
     .setVersion('1.0')
     // .addTag('')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'Bearer',
+        bearerFormat: 'JWT',
+        in: 'header',
+      },
+      'token',
+    )
+    .addSecurityRequirements('token')
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
-
-
+  SwaggerModule.setup('swagger', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
 
   await app.listen(configService.get<string>('PORT'));
 }

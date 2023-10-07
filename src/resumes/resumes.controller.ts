@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
-import { ResumesService } from './resumes.service';
-import { CreateResumeDto, CreateUserCvDto } from './dto/create-resume.dto';
-import { UpdateResumeDto } from './dto/update-resume.dto';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
+import { CreateUserCvDto } from './dto/create-resume.dto';
+import { ResumesService } from './resumes.service';
 
+@ApiTags('Resumes')
 @Controller('resumes')
 export class ResumesController {
   constructor(private readonly resumesService: ResumesService) { }
