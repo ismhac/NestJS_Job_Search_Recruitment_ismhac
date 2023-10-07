@@ -23,7 +23,7 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   // config cookies
-  app.use(cookieParser());
+  // app.use(cookieParser());
 
   // config CORS
   app.enableCors({

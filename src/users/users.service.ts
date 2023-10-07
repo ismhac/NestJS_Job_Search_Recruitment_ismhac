@@ -1,16 +1,16 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateUserDto, RegisterUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { User as UserModel, UserDocument } from './schemas/user.schema';
-import mongoose, { Model } from 'mongoose';
-import { genSaltSync, hashSync, compareSync } from 'bcryptjs';
-import { SoftDeleteModel } from 'soft-delete-plugin-mongoose/dist/soft-delete-model';
-import { IUser } from './users.interface';
 import aqp from 'api-query-params';
+import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
+import mongoose from 'mongoose';
+import { SoftDeleteModel } from 'soft-delete-plugin-mongoose/dist/soft-delete-model';
+import { USER_ROLE } from 'src/databases/sample';
 import { User as UserDecorator } from 'src/decorator/customize';
 import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
-import { USER_ROLE } from 'src/databases/sample';
+import { CreateUserDto, RegisterUserDto } from './dto/create-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
+import { UserDocument, User as UserModel } from './schemas/user.schema';
+import { IUser } from './users.interface';
 
 
 @Injectable()
@@ -166,7 +166,7 @@ export class UsersService {
     }
 
     const foundUser = await this.userModel.findById(id);
-    if (foundUser.email === "admin@gmail.com") {
+    if (foundUser && foundUser.email === "admin@gmail.com") {
       throw new BadRequestException('Can not delete admin account');
     }
     await this.userModel.updateOne(
