@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
 import { join } from 'path';
 import { AppModule } from './app.module';
 import { JwtAuthGuard } from './auth/guard/jwt-auth.guard';
@@ -42,6 +43,9 @@ async function bootstrap() {
     defaultVersion: ['1', '2'] // => /api/v1 or /api/v2
   });
 
+  // config helmet
+  app.use(helmet());
+
   // config swagger
   const config = new DocumentBuilder()
     .setTitle('RM SWAGGER')
@@ -51,6 +55,8 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+
+
 
   await app.listen(configService.get<string>('PORT'));
 }

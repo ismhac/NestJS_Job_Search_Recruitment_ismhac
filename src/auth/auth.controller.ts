@@ -1,13 +1,12 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
-import { AuthService } from "./auth.service";
-import { Public, ResponseMessage, User } from "src/decorator/customize";
-import { LocalAuthGuard } from "./guard/local-auth.guard";
-import { JwtAuthGuard } from "./guard/jwt-auth.guard";
-import { RegisterUserDto } from "src/users/dto/create-user.dto";
+import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 import { Request, Response } from "express";
-import { IUser } from "src/users/users.interface";
+import { Public, ResponseMessage, User } from "src/decorator/customize";
 import { RolesService } from "src/roles/roles.service";
-
+import { RegisterUserDto } from "src/users/dto/create-user.dto";
+import { IUser } from "src/users/users.interface";
+import { AuthService } from "./auth.service";
+import { LocalAuthGuard } from "./guard/local-auth.guard";
 
 @Controller("auth")
 export class AuthController {
@@ -59,6 +58,8 @@ export class AuthController {
 
     @Public()
     @UseGuards(LocalAuthGuard)
+    @UseGuards(ThrottlerGuard)
+    @Throttle(3, 60)
     @Post('/login')
     @ResponseMessage('Login successfully')
     handleLogin(
