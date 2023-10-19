@@ -69,6 +69,7 @@ async function bootstrap() {
   SwaggerModule.setup('swagger', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
+      defaultModelsExpandDepth: -1, // disable show dto
     },
   });
 
