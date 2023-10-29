@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Types } from 'mongoose';
 import { Company } from 'src/companies/schemas/company.schema';
 import { Job } from 'src/jobs/schemas/job.schema';
+import { User } from 'src/users/schemas/user.schema';
 
 export type ResumeDocument = HydratedDocument<Resume>;
 
@@ -11,7 +12,7 @@ export class Resume {
     @Prop()
     email: string;
 
-    @Prop()
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
     userId: mongoose.Schema.Types.ObjectId;
 
     @Prop()

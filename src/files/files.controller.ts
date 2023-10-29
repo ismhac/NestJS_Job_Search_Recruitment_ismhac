@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, UploadedFile, UseFil
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiTags } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/core/http-exception.filter';
-import { Public, ResponseMessage } from 'src/decorator/customize';
+import { ResponseMessage } from 'src/decorator/customize';
 import { UpdateFileDto } from './dto/update-file.dto';
 import { FilesService } from './files.service';
 
@@ -11,7 +11,7 @@ import { FilesService } from './files.service';
 export class FilesController {
   constructor(private readonly filesService: FilesService) { }
 
-  @Public()
+  // @Public()
   @Post('upload')
   @UseFilters(new HttpExceptionFilter())
   @ResponseMessage('Upload file successfully')

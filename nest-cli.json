@@ -9,7 +9,9 @@
     ],
     "watchAssets": true,
     "plugins": [
-      "@nestjs/swagger"
+      {
+        "name": "@nestjs/swagger/plugin"
+      }
     ]
   }
 }

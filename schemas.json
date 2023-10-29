@@ -1,0 +1,193 @@
+{
+    "companies": {
+        "_id": "ObjectId",
+        "name": "string",
+        "address": "string",
+        "description": "string",
+        "logo": "string",
+        "createdBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "updatedBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "deletedBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "createdAt": "Date",
+        "updatedAt": "Date",
+        "deletedAt": "Date",
+        "isDeleted": "boolean"
+    },
+    "users": {
+        "name": "string",
+        "email": "string",
+        "password": "string",
+        "age": "number",
+        "gender": "string",
+        "address": "string",
+        "company": {
+            "_id": "ObjectId",
+            "name": "string"
+        },
+        "role": "ObjectId",
+        "refreshToken": "string",
+        "createdBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "updatedBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "deletedBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "createdAt": "Date",
+        "updatedAt": "Date",
+        "deletedAt": "Date",
+        "isDeleted": "boolean"
+    },
+    "resumes": {
+        "email": "string",
+        "userId": "ObjectId",
+        "url": "string",
+        "status": "string",
+        "companyId": "ObjectId",
+        "jobId": "ObjectId",
+        "history": [
+            {
+                "status": "string",
+                "updatedAt": "Date",
+                "updatedBy": {
+                    "_id": "ObjectId",
+                    "email": "string"
+                }
+            }
+        ],
+        "createdBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "updatedBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "deletedBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "createdAt": "Date",
+        "updatedAt": "Date",
+        "deletedAt": "Date",
+        "isDeleted": "boolean"
+    },
+    "jobs": {
+        "name": "string",
+        "skills": [
+            "string"
+        ],
+        "company": {
+            "_id": "ObjectId",
+            "name": "string",
+            "logo": "string"
+        },
+        "location": "string",
+        "salary": "number",
+        "quantity": "number",
+        "level": "string",
+        "description": "string",
+        "startDate": "Date",
+        "endDate": "Date",
+        "isActive": "boolean",
+        "createdBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "updatedBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "deletedBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "createdAt": "Date",
+        "updatedAt": "Date",
+        "deletedAt": "Date",
+        "isDeleted": "boolean"
+    },
+    "subscribers": {
+        "name": "string",
+        "email": "string",
+        "skills": [
+            "string"
+        ],
+        "createdBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "updatedBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "deletedBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "createdAt": "Date",
+        "updatedAt": "Date",
+        "deletedAt": "Date",
+        "isDeleted": "boolean"
+    },
+    "roles": {
+        "name": "string",
+        "description": "string",
+        "isActive": "boolean",
+        "permissions": [
+            "Permission"
+        ],
+        "createdBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "updatedBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "deletedBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "createdAt": "Date",
+        "updatedAt": "Date",
+        "deletedAt": "Date",
+        "isDeleted": "boolean"
+    },
+    "permissions": {
+        "name": "string",
+        "apiPath": "string",
+        "method": "string",
+        "module": "string",
+        "createdBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "updatedBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "deletedBy": {
+            "_id": "ObjectId",
+            "email": "string"
+        },
+        "createdAt": "Date",
+        "updatedAt": "Date",
+        "deletedAt": "Date",
+        "isDeleted": "boolean"
+    }
+}

@@ -11,8 +11,11 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .env
+
+# Compodoc
 documentation
 
+# Docker
 docker-compose.yml
 Dockerfile
 

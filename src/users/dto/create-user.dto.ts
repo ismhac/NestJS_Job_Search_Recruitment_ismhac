@@ -7,48 +7,48 @@ import mongoose from "mongoose";
 
 class Company {
 
-    @ApiProperty()
+
     @IsNotEmpty()
     _id: mongoose.Schema.Types.ObjectId
 
-    @ApiProperty()
+
     @IsNotEmpty()
     name: string;
 }
 
 export class CreateUserDto {
 
-    @ApiProperty()
+
     @IsNotEmpty({ message: 'Name is required' })
     name: string;
 
-    @ApiProperty()
+
     @IsEmail()
     @IsNotEmpty({ message: 'Email is required' })
     email: string;
 
-    @ApiProperty()
+
     @IsNotEmpty({ message: 'Password is required' })
     password: string;
 
-    @ApiProperty()
+
     @IsNotEmpty({ message: 'Age is required' })
     age: number;
 
-    @ApiProperty()
+
     @IsNotEmpty({ message: 'Gender is required' })
     gender: string;
 
-    @ApiProperty()
+
     @IsNotEmpty({ message: 'Address is required' })
     address: string;
 
-    @ApiProperty()
+
     @IsNotEmpty({ message: 'Role is required' })
     @IsMongoId({ message: 'Role is must be a ObjectId' })
     role: mongoose.Schema.Types.ObjectId;
 
-    @ApiProperty()
+
     @IsNotEmptyObject()
     @IsObject()
     @ValidateNested()
@@ -58,16 +58,16 @@ export class CreateUserDto {
 
 export class RegisterUserDto {
 
-    @ApiProperty()
+
     @IsNotEmpty({ message: 'Name is required' })
     name: string;
 
-    @ApiProperty()
+
     @IsEmail()
     @IsNotEmpty({ message: 'Email is required' })
     email: string;
 
-    @ApiProperty()
+
     @IsNotEmpty({ message: 'Password is required' })
     password: string;
 

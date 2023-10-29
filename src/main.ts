@@ -29,11 +29,13 @@ async function bootstrap() {
 
   // config CORS
   app.enableCors({
-    "origin": true,
+    origin: [
+      /^(.*)/,
+    ],
     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
     "preflightContinue": false,
     "optionsSuccessStatus": 204,
-    credentials: true
+    credentials: true,
   });
 
   // config versioning
@@ -67,6 +69,7 @@ async function bootstrap() {
   SwaggerModule.setup('swagger', app, document, {
     swaggerOptions: {
       persistAuthorization: true,
+      defaultModelsExpandDepth: -1, // disable show dto
     },
   });
 
