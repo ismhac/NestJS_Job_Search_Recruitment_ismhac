@@ -1,2 +1,2 @@
-build: npm run watch:build
-web: npm run watch:start:prod
+build: npm run build
+web: npm run start:prod
