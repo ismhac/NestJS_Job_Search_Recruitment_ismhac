@@ -8,13 +8,15 @@ import { RegisterUserDto, UserLoginDto } from "src/users/dto/create-user.dto";
 import { IUser } from "src/users/users.interface";
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./guard/local-auth.guard";
+import { CreateCompanyDto } from "src/companies/dto/create-company.dto";
 
 @ApiTags("Auth")
 @Controller("auth")
 export class AuthController {
     constructor(
         private authService: AuthService,
-        private roleService: RolesService
+        private roleService: RolesService,
+        // private
     ) { }
 
     @Post('/logout')
@@ -69,5 +71,9 @@ export class AuthController {
         @Req() req,
         @Res({ passthrough: true }) response: Response) {
         return this.authService.login(req.user, response);
+    }
+
+    recruiterRegister(@Body() registerUserDto: RegisterUserDto, createCompanyDto: CreateCompanyDto) {
+
     }
 }
