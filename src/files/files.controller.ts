@@ -75,7 +75,8 @@ export class FilesController {
     fs.unlinkSync(file.path);
 
     // Lấy đường dẫn trên Google Drive bằng cách kết hợp id với URL cơ bản của Google Drive
-    const fileUrl = `https://drive.google.com/file/d/${response.data.id}/view`;
+    // const fileUrl = `https://drive.google.com/file/d/${response.data.id}/view`;
+    const fileUrl = `https://drive.google.com/uc?id=${response.data.id}`;
 
     return {
       fileName: file.filename,
@@ -85,12 +86,12 @@ export class FilesController {
   }
 
   @Public()
-  @Get('download-file/:fileName')
+  @Get('download-file/:fileId')
   async downloadFileFromURL(
     @Res() res: Response,
-    @Param('fileName') fileName: string) {
+    @Param('fileId') fileId: string) {
     try {
-      const url = `https://v1-rm-be-nestjs-785603e48f0d.herokuapp.com/images/default/${fileName}`;
+      const url = `https://drive.google.com/uc?id=${fileId}`;
       const response = await axios.get(url, { responseType: 'stream' });
 
       const contentType = response.headers['content-type'];
@@ -98,7 +99,7 @@ export class FilesController {
 
       if (fileExtension) {
         res.setHeader('Content-Type', contentType);
-        res.setHeader('Content-Disposition', `attachment; filename="${fileName}.${fileExtension}"`);
+        res.setHeader('Content-Disposition', `attachment; filename="${fileId}.${fileExtension}"`);
       } else {
         throw new Error('The file type cannot be identified !');
       }
