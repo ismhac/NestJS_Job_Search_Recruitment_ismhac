@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiHideProperty, ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsEmail, IsMongoId, IsNotEmpty, IsNotEmptyObject, IsObject, IsString, ValidateNested } from "class-validator";
 import mongoose from "mongoose";
@@ -61,24 +61,30 @@ export class RegisterUserDto {
 
 
     @IsNotEmpty({ message: 'Name is required' })
+    @ApiProperty({ example: "John Doe" })
     name: string;
 
 
     @IsEmail()
     @IsNotEmpty({ message: 'Email is required' })
+    @ApiProperty({ example: "useremail@gmail.com" })
     email: string;
 
 
     @IsNotEmpty({ message: 'Password is required' })
+    @ApiProperty({ example: "userpassword" })
     password: string;
 
     // @IsNotEmpty({ message: 'Age is required' })
+    @ApiHideProperty()
     age: number;
 
     // @IsNotEmpty({ message: 'Gender is required' })
+    @ApiHideProperty()
     gender: string;
 
     // @IsNotEmpty({ message: 'Address is required' })
+    @ApiHideProperty()
     address: string;
 }
 
@@ -87,24 +93,31 @@ export class RegisterRecruiterDto {
 
 
     @IsNotEmpty({ message: 'Name is required' })
+    @ApiProperty({ example: "John Doe" })
     name: string;
 
 
     @IsEmail()
     @IsNotEmpty({ message: 'Email is required' })
+    @ApiProperty({ example: "useremail@gmail.com" })
     email: string;
 
 
     @IsNotEmpty({ message: 'Password is required' })
+    @ApiProperty({ example: "userpassword" })
     password: string;
 
     // @IsNotEmpty({ message: 'Age is required' })
+    @ApiHideProperty()
     age: number;
 
+
     // @IsNotEmpty({ message: 'Gender is required' })
+    @ApiHideProperty()
     gender: string;
 
     // @IsNotEmpty({ message: 'Address is required' })
+    @ApiHideProperty()
     address: string;
 
     @IsNotEmptyObject()
@@ -116,13 +129,11 @@ export class RegisterRecruiterDto {
 export class UserLoginDto {
     @IsString()
     @IsNotEmpty()
-    @ApiProperty({ example: 'captainhac', description: 'username' })
+    @ApiProperty({ example: "useremail@gmail.com" })
     readonly username: string;
+
     @IsString()
     @IsNotEmpty()
-    @ApiProperty({
-        example: '123456',
-        description: 'password',
-    })
+    @ApiProperty({ example: 'userpassword' })
     readonly password: string;
 }

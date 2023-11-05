@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
-import { ApiBody, ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 import { Request, Response } from "express";
 import { Public, ResponseMessage, User } from "src/decorator/customize";
@@ -8,9 +8,9 @@ import { RegisterRecruiterDto, RegisterUserDto, UserLoginDto } from "src/users/d
 import { IUser } from "src/users/users.interface";
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./guard/local-auth.guard";
-import { CreateCompanyDto } from "src/companies/dto/create-company.dto";
 
-@ApiTags("Auth")
+
+@ApiTags("APIs that manage authentication and permissions")
 @Controller("auth")
 export class AuthController {
     constructor(
@@ -21,6 +21,8 @@ export class AuthController {
 
     @Post('/logout')
     @ResponseMessage("Logout User")
+    // swagger
+    @ApiOperation({ summary: 'API logout' })
     handleLogout(
         @Res({ passthrough: true }) response: Response,
         @User() user: IUser
@@ -39,6 +41,8 @@ export class AuthController {
     @Public()
     @Get('/refresh')
     @ResponseMessage("Get user by refresh token")
+    // swagger
+    @ApiOperation({ summary: 'API get user by refresh token' })
     handleRefreshToken(@Req() request: Request, @Res({ passthrough: true }) response: Response) { // req.user
         const refreshToken = request.headers.authorization;
         return this.authService.processNewToken(refreshToken, response);
@@ -46,6 +50,8 @@ export class AuthController {
 
     @Get('/account')
     @ResponseMessage("Get user information success")
+    // swagger
+    @ApiOperation({ summary: 'API get user information' })
     async handleGetAccount(@User() user: IUser) { // req.user
         const temp = await this.roleService.findOne(user.role._id) as any; // disable check type
         user.permissions = temp.permissions;
@@ -55,6 +61,9 @@ export class AuthController {
     @Public()
     @Post('/user-register')
     @ResponseMessage('Register a new user success')
+    // swagger
+    @ApiOperation({ summary: 'API register user' })
+    @ApiBody({ type: RegisterUserDto })
     handleRegister(@Body() registerUserDto: RegisterUserDto) {
         return this.authService.userRegister(registerUserDto);
     }
@@ -64,9 +73,11 @@ export class AuthController {
     @UseGuards(LocalAuthGuard)
     @UseGuards(ThrottlerGuard)
     @Throttle(60, 60)
-    @ApiBody({ type: UserLoginDto })
     @Post('/login')
     @ResponseMessage('Login successfully')
+    // swagger
+    @ApiOperation({ summary: 'API login' })
+    @ApiBody({ type: UserLoginDto })
     handleLogin(
         @Req() req,
         @Res({ passthrough: true }) response: Response) {
@@ -75,6 +86,10 @@ export class AuthController {
 
     @Public()
     @Post('/recruiter-register')
+    @ResponseMessage('Register a new recruiter success')
+    // swagger
+    @ApiOperation({ summary: 'API register recruiter' })
+    @ApiBody({ type: RegisterRecruiterDto })
     recruiterRegister(
         @Body() registerRecruiterDto: RegisterRecruiterDto
     ) {
