@@ -75,7 +75,6 @@ export class FilesController {
     fs.unlinkSync(file.path);
 
     // Lấy đường dẫn trên Google Drive bằng cách kết hợp id với URL cơ bản của Google Drive
-    // const fileUrl = `https://drive.google.com/file/d/${response.data.id}/view`;
     const fileUrl = `https://drive.google.com/uc?id=${response.data.id}`;
 
     return {

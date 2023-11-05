@@ -4,7 +4,7 @@ import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 import { Request, Response } from "express";
 import { Public, ResponseMessage, User } from "src/decorator/customize";
 import { RolesService } from "src/roles/roles.service";
-import { RegisterUserDto, UserLoginDto } from "src/users/dto/create-user.dto";
+import { RegisterRecruiterDto, RegisterUserDto, UserLoginDto } from "src/users/dto/create-user.dto";
 import { IUser } from "src/users/users.interface";
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./guard/local-auth.guard";
@@ -53,10 +53,10 @@ export class AuthController {
     }
 
     @Public()
-    @Post('register')
+    @Post('/user-register')
     @ResponseMessage('Register a new user success')
     handleRegister(@Body() registerUserDto: RegisterUserDto) {
-        return this.authService.register(registerUserDto);
+        return this.authService.userRegister(registerUserDto);
     }
 
 
@@ -73,7 +73,11 @@ export class AuthController {
         return this.authService.login(req.user, response);
     }
 
-    recruiterRegister(@Body() registerUserDto: RegisterUserDto, createCompanyDto: CreateCompanyDto) {
-
+    @Public()
+    @Post('/recruiter-register')
+    recruiterRegister(
+        @Body() registerRecruiterDto: RegisterRecruiterDto
+    ) {
+        return this.authService.recruiterRegister(registerRecruiterDto);
     }
 }

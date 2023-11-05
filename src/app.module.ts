@@ -56,7 +56,10 @@ import { UsersModule } from './users/users.module';
     PermissionsModule,  // import PermissionsModule
 
     RolesModule, // import RolesModule
-    DatabasesModule, SubscribersModule, MailModule, HealthModule,
+    DatabasesModule,
+    SubscribersModule,
+    MailModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [

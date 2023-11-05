@@ -4,7 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Response } from "express";
 import ms from 'ms';
 import { RolesService } from 'src/roles/roles.service';
-import { RegisterUserDto } from 'src/users/dto/create-user.dto';
+import { RegisterRecruiterDto, RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { IUser } from 'src/users/users.interface';
 import { UsersService } from 'src/users/users.service';
 
@@ -86,12 +86,19 @@ export class AuthService {
         return refreshToken;
     }
 
-    async register(user: RegisterUserDto) {
-        let newUser = await this.usersService.register(user)
+    async userRegister(user: RegisterUserDto) {
+        let newUser = await this.usersService.userRegister(user)
         return {
             _id: newUser?._id,
             createdAt: newUser?.createdAt
         }
+    }
+
+    async recruiterRegister(
+        recruiter: RegisterRecruiterDto,
+    ) {
+        let result = await this.usersService.recruiterRegister(recruiter);
+        return result;
     }
 
     // username/pass là 2 tham số thư viện passport ném về
@@ -121,7 +128,8 @@ export class AuthService {
             _id,
             name,
             email,
-            role
+            role,
+            permissions
         }
 
         const refresh_token = this.createRefreshToken(payload);

@@ -4,13 +4,14 @@ import aqp from 'api-query-params';
 import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
 import mongoose from 'mongoose';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose/dist/soft-delete-model';
-import { USER_ROLE } from 'src/databases/sample';
+import { HR_ROLE, USER_ROLE } from 'src/databases/sample';
 import { User as UserDecorator } from 'src/decorator/customize';
 import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
-import { CreateUserDto, RegisterUserDto } from './dto/create-user.dto';
+import { CreateUserDto, RegisterRecruiterDto, RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDocument, User as UserModel } from './schemas/user.schema';
 import { IUser } from './users.interface';
+import { Company, CompanyDocument } from 'src/companies/schemas/company.schema';
 
 
 @Injectable()
@@ -21,7 +22,10 @@ export class UsersService {
     private userModel: SoftDeleteModel<UserDocument>,
 
     @InjectModel(Role.name)
-    private roleModule: SoftDeleteModel<RoleDocument>
+    private roleModule: SoftDeleteModel<RoleDocument>,
+
+    @InjectModel(Company.name)
+    private companyModule: SoftDeleteModel<CompanyDocument>
   ) { }
 
   getHashPassword = (password: string) => {
@@ -47,7 +51,7 @@ export class UsersService {
   }
 
   // name , email , password, age, gender, address
-  async register(user: RegisterUserDto) {
+  async userRegister(user: RegisterUserDto) {
     const { name, email, password, age, gender, address } = user;
     // check email
     const isExist = await this.userModel.findOne({ email });
@@ -70,6 +74,64 @@ export class UsersService {
     })
     return newRegister;
   }
+
+
+  async recruiterRegister(user: RegisterRecruiterDto) {
+    const { name, email, password, age,
+      gender, address, company } = user;
+
+    // check email
+    const isExist = await this.userModel.findOne({ email });
+    if (isExist) {
+      throw new BadRequestException(`Email: ${email} already exists in the system. Please use another email!`)
+    }
+
+    // fetch user role
+    const userRole = await this.roleModule.findOne({ name: HR_ROLE });
+
+    const hashPassword = this.getHashPassword(password);
+
+    // 
+    const companyName = company?.name;
+    const companyAddress = company?.address;
+    const companyDescription = company?.description;
+    const companyLogo = company?.logo;
+
+    let newRecruiter = await this.userModel.create({
+      name,
+      email,
+      password: hashPassword,
+      age,
+      gender,
+      address,
+      role: userRole?._id
+    })
+
+    let newCompany = await this.companyModule.create({
+      name: companyName,
+      address: companyAddress,
+      description: companyDescription,
+      logo: companyLogo,
+      createdBy: {
+        _id: newRecruiter?._id,
+        email: email
+      }
+    })
+
+    newRecruiter.company = {
+      _id: newCompany._id as any,
+      name: newCompany.name
+    };
+
+    await newRecruiter.save();
+
+    return {
+      newRecruiter,
+      newCompany
+    };
+  }
+
+
 
   async create(createUserDto: CreateUserDto, @UserDecorator() user: IUser) {
 

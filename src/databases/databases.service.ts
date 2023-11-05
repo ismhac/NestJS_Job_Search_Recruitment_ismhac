@@ -6,7 +6,7 @@ import { Permission, PermissionDocument } from 'src/permissions/schemas/permissi
 import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
 import { User, UserDocument } from 'src/users/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
-import { ADMIN_ROLE, INIT_PERMISSIONS, USER_ROLE } from './sample';
+import { ADMIN_ROLE, HR_ROLE, INIT_PERMISSIONS, USER_ROLE } from './sample';
 
 @Injectable()
 export class DatabasesService implements OnModuleInit {
@@ -56,6 +56,12 @@ export class DatabasesService implements OnModuleInit {
                         isActive: true,
                         permissions: [] // not set permission, just create role
                     },
+                    {
+                        name: HR_ROLE,
+                        description: "HR in system",
+                        isActive: true,
+                        permissions: []
+                    }
                 ]);
             }
 
@@ -63,30 +69,31 @@ export class DatabasesService implements OnModuleInit {
             if (countUser === 0) {
                 const adminRole = await this.roleModel.findOne({ name: ADMIN_ROLE });
                 const userRole = await this.roleModel.findOne({ name: USER_ROLE });
+                const hrRole = await this.roleModel.findOne({ name: HR_ROLE });
                 await this.userModel.insertMany([   // bulk create
                     {
-                        name: "Luffy",
-                        email: "admin@gmail.com",
-                        password: this.userService.getHashPassword(this.configService.get<string>('INIT_PASSWORD')),
+                        name: "Admin Init",
+                        email: "initadmin@gmail.com",
+                        password: this.userService.getHashPassword(this.configService.get<string>('INIT_PASSWORD_ADMIN')),
                         age: 20,
                         gender: "MALE",
                         address: "VietNam",
                         role: adminRole?._id,
                     },
                     {
-                        name: "Zoro",
-                        email: "zoro@gmail.com",
-                        password: this.userService.getHashPassword(this.configService.get<string>('INIT_PASSWORD')),
+                        name: "HR Init",
+                        email: "inithr@gmail.com",
+                        password: this.userService.getHashPassword(this.configService.get<string>('INIT_PASSWORD_HR')),
                         age: 24,
-                        gender: "MALE",
+                        gender: "FEMALE",
                         address: "VietNam",
-                        role: adminRole?._id,
+                        role: hrRole?._id,
                     },
                     {
-                        name: "Black Beard",
-                        email: "rauden@gmail.com",
-                        password: this.userService.getHashPassword(this.configService.get<string>('INIT_PASSWORD')),
-                        age: 55,
+                        name: "User init",
+                        email: "inituser@gmail.com",
+                        password: this.userService.getHashPassword(this.configService.get<string>('INIT_PASSWORD_USER')),
+                        age: 20,
                         gender: "MALE",
                         address: "VietNam",
                         role: userRole?._id,

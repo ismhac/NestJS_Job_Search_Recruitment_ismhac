@@ -1,5 +1,6 @@
-export const ADMIN_ROLE = "SUPER_ADMIN";
-export const USER_ROLE = "NORMAL_USER";
+export const ADMIN_ROLE = "ROLE_ADMIN";
+export const USER_ROLE = "ROLE_USER";
+export const HR_ROLE = "ROLE_HR";
 
 export const INIT_PERMISSIONS = [
     {
