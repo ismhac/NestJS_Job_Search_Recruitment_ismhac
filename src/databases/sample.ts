@@ -1,6 +1,6 @@
-export const ADMIN_ROLE = "ROLE_ADMIN";
-export const USER_ROLE = "ROLE_USER";
-export const HR_ROLE = "ROLE_HR";
+export const ROLE_ADMIN = "ROLE_ADMIN";
+export const ROLE_USER = "ROLE_USER";
+export const ROLE_HR = "ROLE_HR";
 
 export const INIT_PERMISSIONS = [
     {

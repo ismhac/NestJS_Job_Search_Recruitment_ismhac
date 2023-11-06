@@ -10,7 +10,14 @@
     "watchAssets": true,
     "plugins": [
       {
-        "name": "@nestjs/swagger/plugin"
+        "name": "@nestjs/swagger/plugin",
+        "options": {
+          "introspectComments": true,
+          "dtoFileNameSuffix": [
+            ".dto.ts",
+            ".schema.ts"
+          ]
+        }
       }
     ]
   }

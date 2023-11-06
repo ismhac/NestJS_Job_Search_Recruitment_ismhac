@@ -1,12 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { RolesService } from './roles.service';
 
-@ApiTags('Roles')
+@ApiTags('APIs for Managing Role Information')
 @Controller('roles')
 export class RolesController {
   constructor(private readonly rolesService: RolesService) { }
@@ -19,6 +19,8 @@ export class RolesController {
 
   @Get()
   @ResponseMessage('Roles fetched successfully')
+  // swagger
+  @ApiOperation({ summary: 'API get all roles' })
   findAll(
     @Query('current') currentPage: string,
     @Query('pageSize') limit: string,

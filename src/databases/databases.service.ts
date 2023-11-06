@@ -6,7 +6,7 @@ import { Permission, PermissionDocument } from 'src/permissions/schemas/permissi
 import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
 import { User, UserDocument } from 'src/users/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
-import { ADMIN_ROLE, HR_ROLE, INIT_PERMISSIONS, USER_ROLE } from './sample';
+import { ROLE_ADMIN, ROLE_HR, INIT_PERMISSIONS, ROLE_USER } from './sample';
 
 @Injectable()
 export class DatabasesService implements OnModuleInit {
@@ -45,19 +45,19 @@ export class DatabasesService implements OnModuleInit {
                 const permissions = await this.permissionModel.find({}).select("_id");
                 await this.roleModel.insertMany([ // bulk create 
                     {
-                        name: ADMIN_ROLE,
+                        name: ROLE_ADMIN,
                         description: "Admin has full permissions",
                         isActive: true,
                         permissions: permissions
                     },
                     {
-                        name: USER_ROLE,
+                        name: ROLE_USER,
                         description: "User/Candidate in system",
                         isActive: true,
                         permissions: [] // not set permission, just create role
                     },
                     {
-                        name: HR_ROLE,
+                        name: ROLE_HR,
                         description: "HR in system",
                         isActive: true,
                         permissions: []
@@ -67,9 +67,9 @@ export class DatabasesService implements OnModuleInit {
 
             // create user
             if (countUser === 0) {
-                const adminRole = await this.roleModel.findOne({ name: ADMIN_ROLE });
-                const userRole = await this.roleModel.findOne({ name: USER_ROLE });
-                const hrRole = await this.roleModel.findOne({ name: HR_ROLE });
+                const adminRole = await this.roleModel.findOne({ name: ROLE_ADMIN });
+                const userRole = await this.roleModel.findOne({ name: ROLE_USER });
+                const hrRole = await this.roleModel.findOne({ name: ROLE_HR });
                 await this.userModel.insertMany([   // bulk create
                     {
                         name: "Admin Init",

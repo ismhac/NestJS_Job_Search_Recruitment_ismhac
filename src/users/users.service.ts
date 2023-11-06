@@ -4,7 +4,7 @@ import aqp from 'api-query-params';
 import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
 import mongoose from 'mongoose';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose/dist/soft-delete-model';
-import { HR_ROLE, USER_ROLE } from 'src/databases/sample';
+import { ROLE_HR, ROLE_USER } from 'src/databases/sample';
 import { User as UserDecorator } from 'src/decorator/customize';
 import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
 import { CreateUserDto, RegisterRecruiterDto, RegisterUserDto } from './dto/create-user.dto';
@@ -60,7 +60,7 @@ export class UsersService {
     }
 
     // fetch user role
-    const userRole = await this.roleModule.findOne({ name: USER_ROLE });
+    const userRole = await this.roleModule.findOne({ name: ROLE_USER });
 
     const hashPassword = this.getHashPassword(password);
     let newRegister = await this.userModel.create({
@@ -87,7 +87,7 @@ export class UsersService {
     }
 
     // fetch user role
-    const userRole = await this.roleModule.findOne({ name: HR_ROLE });
+    const userRole = await this.roleModule.findOne({ name: ROLE_HR });
 
     const hashPassword = this.getHashPassword(password);
 

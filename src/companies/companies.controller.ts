@@ -26,10 +26,10 @@ export class CompaniesController {
   @ResponseMessage('Get all companies successfully')
   // swagger
   @ApiOperation({ summary: 'API get all companies' })
-  @ApiQuery({ name: 'current', required: false, type: Number, description: 'Current page' })
-  @ApiQuery({ name: 'pageSize', required: false, type: Number, description: 'Page size' })
-  @ApiQuery({ name: 'name', required: false, type: String, description: 'Search for companies by name' })
-  @ApiQuery({ name: 'address', required: false, type: String, description: 'Search for companies by address' })
+  @ApiQuery({ name: 'current', required: false, type: Number, description: 'Current page', example: 1 })
+  @ApiQuery({ name: 'pageSize', required: false, type: Number, description: 'Page size', example: 10 })
+  @ApiQuery({ name: 'name', required: false, type: String, description: 'Search for companies by name', example: '/Facebook/i' })
+  @ApiQuery({ name: 'address', required: false, type: String, description: 'Search for companies by address', example: '/USA/i' })
   findAll(
     @Query('current') currentPage: string, // const currentPage: string = req.query.page
     @Query('pageSize') limit: string,

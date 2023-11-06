@@ -1,4 +1,3 @@
-import { ApiProperty } from "@nestjs/swagger";
 import { IsArray, IsBoolean, IsMongoId, IsNotEmpty } from "class-validator";
 import mongoose from "mongoose";
 
