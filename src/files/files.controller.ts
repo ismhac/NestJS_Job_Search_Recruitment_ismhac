@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Res, UploadedFile, UseFilters, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/core/http-exception.filter';
 import { Public, ResponseMessage } from 'src/decorator/customize';
 import { UpdateFileDto } from './dto/update-file.dto';
@@ -11,7 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { google } from 'googleapis';
 import fs from 'fs';
 
-@ApiTags('Files')
+@ApiTags('APIs for Managing File Information')
 @Controller('files')
 export class FilesController {
   constructor(
@@ -24,6 +24,20 @@ export class FilesController {
   @UseFilters(new HttpExceptionFilter())
   @ResponseMessage('Upload file successfully')
   @UseInterceptors(FileInterceptor('fileUpload'))
+  //  swagger
+  @ApiOperation({ summary: 'API upload file' })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        fileUpload: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     const CLIENT_ID = this.configService.get<string>('CLIENT_ID');
     const CLIENT_SECRET = this.configService.get<string>('CLIENT_SECRET');
@@ -86,6 +100,8 @@ export class FilesController {
 
   @Public()
   @Get('download-file/:fileId')
+  //  swagger
+  @ApiOperation({ summary: 'API download file' })
   async downloadFileFromURL(
     @Res() res: Response,
     @Param('fileId') fileId: string) {
@@ -108,23 +124,23 @@ export class FilesController {
     }
   }
 
-  @Get()
-  findAll() {
-    return this.filesService.findAll();
-  }
+  // @Get()
+  // findAll() {
+  //   return this.filesService.findAll();
+  // }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.filesService.findOne(+id);
-  }
+  // @Get(':id')
+  // findOne(@Param('id') id: string) {
+  //   return this.filesService.findOne(+id);
+  // }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateFileDto: UpdateFileDto) {
-    return this.filesService.update(+id, updateFileDto);
-  }
+  // @Patch(':id')
+  // update(@Param('id') id: string, @Body() updateFileDto: UpdateFileDto) {
+  //   return this.filesService.update(+id, updateFileDto);
+  // }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.filesService.remove(+id);
-  }
+  // @Delete(':id')
+  // remove(@Param('id') id: string) {
+  //   return this.filesService.remove(+id);
+  // }
 }

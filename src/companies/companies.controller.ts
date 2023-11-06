@@ -41,12 +41,40 @@ export class CompaniesController {
   @Public()
   @Get(':id')
   @ResponseMessage('Get a company successfully')
+  // swagger
+  @ApiOperation({ summary: 'API get a company by id' })
   findOne(@Param('id') id: string) {
     return this.companiesService.findOne(id);
   }
 
   @Patch(':id')
   @ResponseMessage('Update a company successfully')
+  // swagger
+  @ApiOperation({ summary: 'API update a company by id' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: [],
+      properties: {
+        name: {
+          type: 'string',
+          example: 'Facebook',
+        },
+        address: {
+          type: 'string',
+          example: 'USA',
+        },
+        description: {
+          type: 'string',
+          example: 'Facebook is a social networking site that makes it easy for you to connect and share with family and friends online.',
+        },
+        logo: {
+          type: 'string',
+          example: 'https://www.facebook.com/images/fb_icon_325x325.png',
+        }
+      },
+    },
+  })
   update(
     @Param('id') id: string,
     @Body() updateCompanyDto: UpdateCompanyDto,
@@ -57,6 +85,8 @@ export class CompaniesController {
 
   @Delete(':id')
   @ResponseMessage('Remove a company successfully')
+  // swagger
+  @ApiOperation({ summary: 'API remove a company by id' })
   remove(@Param('id') id: string, @User() user: IUser) {
     return this.companiesService.remove(id, user);
   }
