@@ -129,7 +129,7 @@ export class AuthService {
             name,
             email,
             role,
-            permissions
+            // permissions
         }
 
         const refresh_token = this.createRefreshToken(payload);
@@ -151,7 +151,7 @@ export class AuthService {
                 name,
                 email,
                 role,
-                permissions
+                // permissions
             }
         };
     }
