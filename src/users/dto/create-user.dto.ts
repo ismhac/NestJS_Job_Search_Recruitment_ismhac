@@ -32,6 +32,9 @@ export class CreateUserDto {
     @IsNotEmpty({ message: 'Password is required' })
     password: string;
 
+    @IsNotEmpty({ message: 'Avatar is required' })
+    avatar: string;
+
 
     @IsNotEmpty({ message: 'Age is required' })
     age: number;
