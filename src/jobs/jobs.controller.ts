@@ -5,6 +5,7 @@ import { IUser } from 'src/users/users.interface';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { JobsService } from './jobs.service';
+import { Schema } from '@nestjs/mongoose';
 
 @ApiTags('APIs for Managing Job Information')
 @Controller('jobs')
@@ -95,43 +96,8 @@ export class JobsController {
   @ApiQuery({ name: 'current', required: false, type: Number, description: 'Current page', example: 1 })
   @ApiQuery({ name: 'pageSize', required: false, type: Number, description: 'Page size', example: 10 })
   @ApiQuery({
-    schema: {
-      type: 'object',
-      properties: {
-        name: {
-          type: '',
-          example: '/NodeJS Developer/i',
-        },
-        location: {
-          type: 'string',
-          example: '/Hà Nội/i'
-        },
-        level: {
-          type: 'string',
-          example: '/Senior/i'
-        },
-        salary: {
-          type: 'object',
-          example: {
-            "$gte": 5000000,
-            "$lte": 10000000
-          }
-        },
-        quantity: {
-          type: 'number',
-          example: 10
-        },
-        skills: {
-          type: 'object',
-          example: {
-            "$in": ["NodeJs", "ReactJs", "Java"]
-          }
-        }
-      }
-    },
-    name: 'filter',
-    required: false,
-    description: 'Filter object'
+    type: 'string', name: 'filter', required: false, description: 'Filter',
+    example: `{"name":"/NodeJS Developer/i","location":"/Hà Nội/i","level":"/Senior/i","salary":{"$gte":5000000,"$lte":10000000},"quantity":10,"skills":{"$in":["NodeJs","ReactJs","Java"]}`,
   })
   findAll(
     @Query('current') currentPage: string, // const currentPage: string = req.query.page
@@ -152,6 +118,76 @@ export class JobsController {
 
   @Patch(':id')
   @ResponseMessage('Update a job successfully')
+  // swagger
+  @ApiOperation({ summary: 'API update a job by id' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: [],
+      properties: {
+        name: {
+          type: 'string',
+          example: 'NodeJS Developer',
+        },
+        skills: {
+          type: 'array',
+          items: {
+            type: 'string'
+          },
+          example: ['NodeJS', 'ReactJS']
+        },
+        company: {
+          type: 'object',
+          properties: {
+            _id: {
+              type: 'string',
+              example: '60a8a8f1b6a0a72b3c8f0d5f'
+            },
+            name: {
+              type: 'string',
+              example: 'NestJS'
+            },
+            logo: {
+              type: 'string',
+              example: 'https://nestjs.com/img/logo_text.svg'
+            }
+          },
+        },
+        location: {
+          type: 'string',
+          example: 'Ho Chi Minh'
+        },
+        description: {
+          type: 'string',
+          example: 'NodeJS Developer'
+        },
+        salary: {
+          type: 'number',
+          example: 7500000
+        },
+        quantity: {
+          type: 'number',
+          example: 10
+        },
+        level: {
+          type: 'string',
+          example: 'Senior'
+        },
+        startDate: {
+          type: 'Date',
+          example: '2021-05-23T00:00:00.000Z'
+        },
+        endDate: {
+          type: 'Date',
+          example: '2021-05-23T00:00:00.000Z'
+        },
+        isActive: {
+          type: 'boolean',
+          example: true
+        }
+      }
+    }
+  })
   update(
     @Param('id') id: string,
     @Body() updateJobDto: UpdateJobDto,
@@ -162,6 +198,8 @@ export class JobsController {
 
   @Delete(':id')
   @ResponseMessage('Remove a job successfully')
+  // swagger
+  @ApiOperation({ summary: 'API remove a job by id' })
   remove(
     @Param('id') id: string,
     @User() user: IUser) {

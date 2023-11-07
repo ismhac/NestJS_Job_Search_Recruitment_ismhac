@@ -41,6 +41,7 @@ export class UsersController {
   }
 
 
+  // @Public()
   @Patch()
   @ResponseMessage('Update a user success')
   async update(@Body() updateUserDto: UpdateUserDto, @User() user: IUser) {

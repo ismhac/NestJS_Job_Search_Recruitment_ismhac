@@ -1,6 +1,6 @@
 import { ApiHideProperty, ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsEmail, IsMongoId, IsNotEmpty, IsNotEmptyObject, IsObject, IsString, ValidateNested } from "class-validator";
+import { IsEmail, IsMongoId, IsNotEmpty, IsNotEmptyObject, IsObject, IsOptional, IsString, ValidateNested } from "class-validator";
 import mongoose from "mongoose";
 import { CreateCompanyDto } from "src/companies/dto/create-company.dto";
 
@@ -32,26 +32,25 @@ export class CreateUserDto {
     @IsNotEmpty({ message: 'Password is required' })
     password: string;
 
-    @IsNotEmpty({ message: 'Avatar is required' })
+    @IsOptional()
     avatar: string;
 
 
-    @IsNotEmpty({ message: 'Age is required' })
+    @IsOptional()
     age: number;
 
 
-    @IsNotEmpty({ message: 'Gender is required' })
+    @IsOptional()
     gender: string;
 
 
-    @IsNotEmpty({ message: 'Address is required' })
+    @IsOptional()
     address: string;
 
 
     @IsNotEmpty({ message: 'Role is required' })
     @IsMongoId({ message: 'Role is must be a ObjectId' })
     role: mongoose.Schema.Types.ObjectId;
-
 
     @IsNotEmptyObject()
     @IsObject()

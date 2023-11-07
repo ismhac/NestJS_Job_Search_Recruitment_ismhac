@@ -136,7 +136,7 @@ export class UsersService {
   async create(createUserDto: CreateUserDto, @UserDecorator() user: IUser) {
 
     const { name, email, password, age,
-      gender, address, role, company } = createUserDto;
+      gender, address, role, company, avatar } = createUserDto;
     // check email
     const isExist = await this.userModel.findOne({ email });
     if (isExist) {
@@ -147,6 +147,7 @@ export class UsersService {
       name, email,
       password: hashPassword,
       age, gender, address, role, company,
+      avatar: avatar ? avatar : "",
       createdBy: {
         _id: user._id,
         email: user.email
