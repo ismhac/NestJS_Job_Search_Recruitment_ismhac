@@ -2,7 +2,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { Controller, Get } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { Public, ResponseMessage } from 'src/decorator/customize';
 import { Job, JobDocument } from 'src/jobs/schemas/job.schema';
@@ -10,7 +10,7 @@ import { Subscriber, SubscriberDocument } from 'src/subscribers/schemas/subscrib
 import { MailService } from './mail.service';
 
 
-@ApiTags('Mail')
+@ApiTags('APIs for Managing Mail Information')
 @Controller('mail')
 export class MailController {
   constructor(
@@ -35,6 +35,8 @@ export class MailController {
   @Public()
   @ResponseMessage("Test email")
   @Cron("0 0 19 * * 0") // 7pm every sunday
+  // swagger
+  @ApiOperation({ summary: 'API schedule send mail' })
   async handleTestEmail() {
     const subscribers = await this.subscriberModel.find({});
     for (const subs of subscribers) {

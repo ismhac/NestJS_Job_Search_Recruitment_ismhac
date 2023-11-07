@@ -1,5 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { HealthCheck, HealthCheckService, MongooseHealthIndicator } from '@nestjs/terminus';
 import { Public, ResponseMessage } from 'src/decorator/customize';
 
@@ -18,7 +18,7 @@ export class HealthController {
     @HealthCheck()
     @ResponseMessage('Health check successfully')
     // swagger
-    @ApiTags('APIs for Health Check')
+    @ApiOperation({ summary: 'API health check' })
     check() {
         return this.health.check([
             () => this.db.pingCheck('database'),
