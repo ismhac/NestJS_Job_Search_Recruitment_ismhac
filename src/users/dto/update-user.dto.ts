@@ -10,9 +10,6 @@ class Company {
 }
 
 export class UpdateUserDto extends PartialType(OmitType(CreateUserDto, ['password'])) {
-    @IsNotEmpty({ message: '_id is required' })
-    _id: string;
-
     @IsOptional()
     name: string;
 

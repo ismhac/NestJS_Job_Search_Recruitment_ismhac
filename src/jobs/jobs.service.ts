@@ -32,9 +32,10 @@ export class JobsService {
   }
 
   async findAll(currentPage: number, limit: number, queryString: string) {
-    const { filter, sort, population } = aqp(queryString);
+    let { filter, sort, population } = aqp(queryString);
     delete filter.current;
     delete filter.pageSize;
+    filter.value
     let offset = (+currentPage - 1) * (+limit);
     let defaultLimit = +limit ? +limit : 10;
 
