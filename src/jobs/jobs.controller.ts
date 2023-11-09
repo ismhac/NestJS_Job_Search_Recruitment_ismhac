@@ -5,7 +5,6 @@ import { IUser } from 'src/users/users.interface';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { JobsService } from './jobs.service';
-import { Schema } from '@nestjs/mongoose';
 
 @ApiTags('APIs for Managing Job Information')
 @Controller('jobs')
@@ -96,8 +95,11 @@ export class JobsController {
   @ApiQuery({ name: 'current', required: false, type: Number, description: 'Current page', example: 1 })
   @ApiQuery({ name: 'pageSize', required: false, type: Number, description: 'Page size', example: 10 })
   @ApiQuery({
-    type: 'string', name: 'filter', required: false, description: 'Filter',
-    example: `{"name":"/NodeJS Developer/i","location":"/Hà Nội/i","level":"/Senior/i","salary":{"$gte":5000000,"$lte":10000000},"quantity":10,"skills":{"$in":["NodeJs","ReactJs","Java"]}`,
+    type: 'string',
+    name: 'filter',
+    required: false,
+    description: 'Filter',
+    example: `{"name":"/eCommerce P/i","location":"/Hồ Ch/i","level":"/MIDDLE/i","salary":{"$gte":24000000,"$lte":25000000},"quantity":10,"skills":{"$in":["/NEST.J/i","ReactJs","Java"]}}`,
   })
   findAll(
     @Query('current') currentPage: string, // const currentPage: string = req.query.page

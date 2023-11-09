@@ -31,11 +31,50 @@ export class JobsService {
     });
   }
 
+  convertStringToRegExp(filter) {
+    for (let key in filter) {
+      if (typeof filter[key] === 'string') {
+        if (filter[key] === '' || filter[key] === '//i') {
+          delete filter[key];
+        } else {
+          let match = filter[key].match(new RegExp('^/(.*?)/([gimy]*)$'));
+          if (match) {
+            filter[key] = new RegExp(match[1], match[2]);
+          }
+        }
+      } else if (Array.isArray(filter[key])) {
+        filter[key] = filter[key].filter(value => value !== '' && value !== '//i').map(value => {
+          if (typeof value === 'string') {
+            let match = value.match(new RegExp('^/(.*?)/([gimy]*)$'));
+            if (match) {
+              return new RegExp(match[1], match[2]);
+            }
+          }
+          return value;
+        });
+        if (filter[key].length === 0) {
+          delete filter[key];
+        }
+      } else if (typeof filter[key] === 'object') {
+        if (Object.keys(filter[key]).length === 0 ||
+          ('$gte' in filter[key] && (filter[key]['$gte'] === '' || filter[key]['$gte'] === undefined)) ||
+          ('$lte' in filter[key] && (filter[key]['$lte'] === '' || filter[key]['$lte'] === undefined)) ||
+          ('$in' in filter[key] && (filter[key]['$in'].length === 0))) {
+          delete filter[key];
+        } else {
+          this.convertStringToRegExp(filter[key]);
+        }
+      }
+    }
+  }
+
   async findAll(currentPage: number, limit: number, queryString: string) {
     let { filter, sort, population } = aqp(queryString);
     delete filter.current;
     delete filter.pageSize;
-    filter.value
+
+    this.convertStringToRegExp(filter);
+    console.log(filter);
     let offset = (+currentPage - 1) * (+limit);
     let defaultLimit = +limit ? +limit : 10;
 
