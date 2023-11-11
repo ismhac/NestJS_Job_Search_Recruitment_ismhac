@@ -9,9 +9,10 @@ import { User as UserDecorator } from 'src/decorator/customize';
 import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
 import { CreateUserDto, RegisterRecruiterDto, RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { UserDocument, User as UserModel } from './schemas/user.schema';
+import { User, UserDocument, User as UserModel } from './schemas/user.schema';
 import { IUser } from './users.interface';
 import { Company, CompanyDocument } from 'src/companies/schemas/company.schema';
+import { Job, JobDocument } from 'src/jobs/schemas/job.schema';
 
 
 @Injectable()
@@ -25,7 +26,10 @@ export class UsersService {
     private roleModule: SoftDeleteModel<RoleDocument>,
 
     @InjectModel(Company.name)
-    private companyModule: SoftDeleteModel<CompanyDocument>
+    private companyModule: SoftDeleteModel<CompanyDocument>,
+
+    @InjectModel(Job.name)
+    private JobModule: SoftDeleteModel<JobDocument>
   ) { }
 
   getHashPassword = (password: string) => {
@@ -50,9 +54,97 @@ export class UsersService {
     )
   }
 
+  async addPreferJob(userId: string, jobId: string) {
+    let existingJobs = await this.JobModule.findById({ _id: jobId });
+    let existingUser = await this.userModel.findById({ _id: userId });
+    if (!existingJobs) {
+      throw new BadRequestException(`Job: ${jobId} does not exist in the system. Please use another job!`)
+    }
+    if (!existingUser) {
+      throw new BadRequestException(`User: ${userId} does not exist in the system. Please use another user!`)
+    }
+
+    let updatedJob = await this.JobModule.updateOne(
+      { _id: jobId },
+      {
+        $addToSet: {
+          preferredUsers: {
+            _id: userId,
+            name: existingUser.name,
+            email: existingUser.email
+          }
+        },
+        updatedBy: {
+          _id: existingUser._id,
+          email: existingUser.email
+        }
+      }
+    )
+    let updatedUser = await this.userModel.updateOne(
+      { _id: userId },
+      {
+        $addToSet: {
+          preferJobs: {
+            _id: jobId,
+            name: existingJobs.name
+          }
+        },
+        updatedBy: {
+          _id: existingUser._id,
+          email: existingUser.email
+        }
+      }
+    )
+    return {
+      addPreferredUsers: updatedJob,
+      addPreferJobs: updatedUser
+    }
+  }
+
+  async unPreferJob(userId: string, jobId: string) {
+    let existingJobs = await this.JobModule.findById({ _id: jobId });
+    let existingUser = await this.userModel.findById({ _id: userId });
+    if (!existingJobs) {
+      throw new BadRequestException(`Job: ${jobId} does not exist in the system. Please use another job!`)
+    }
+    if (!existingUser) {
+      throw new BadRequestException(`User: ${userId} does not exist in the system. Please use another user!`)
+    }
+
+    let updatedJob = await this.JobModule.updateOne(
+      { _id: jobId },
+      {
+        $pull: {
+          preferredUsers: { _id: userId }
+        },
+        updatedBy: {
+          _id: existingUser._id,
+          email: existingUser.email
+        }
+      }
+    )
+    let updatedUser = await this.userModel.updateOne(
+      { _id: userId },
+      {
+        $pull: {
+          preferJobs: { _id: jobId }
+        },
+        updatedBy: {
+          _id: existingUser._id,
+          email: existingUser.email
+        }
+      }
+    )
+    return {
+      removePreferredUsers: updatedJob,
+      removePreferJobs: updatedUser
+    }
+  }
+
+
   // name , email , password, age, gender, address
   async userRegister(user: RegisterUserDto) {
-    const { name, email, password, age, gender, address } = user;
+    const { name, email, password, age, gender, address, preferJobs } = user;
     // check email
     const isExist = await this.userModel.findOne({ email });
     if (isExist) {
@@ -70,7 +162,8 @@ export class UsersService {
       age,
       gender,
       address,
-      role: userRole?._id
+      role: userRole?._id,
+      preferJobs
     })
     return newRegister;
   }

@@ -41,21 +41,14 @@ import { UsersModule } from './users/users.module';
       isGlobal: true,
     }),
 
-    UsersModule,  // import UsersModule
-
-    AuthModule,  // import AuthModule
-
-    CompaniesModule, // import CompaniesModule
-
-    JobsModule, // import JobsModule
-
-    FilesModule, // import FilesModule
-
-    ResumesModule, // import ResumesModule
-
-    PermissionsModule,  // import PermissionsModule
-
-    RolesModule, // import RolesModule
+    UsersModule,
+    AuthModule,
+    CompaniesModule,
+    JobsModule,
+    FilesModule,
+    ResumesModule,
+    PermissionsModule,
+    RolesModule,
     DatabasesModule,
     SubscribersModule,
     MailModule,

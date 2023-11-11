@@ -101,7 +101,6 @@ export class AuthService {
         return result;
     }
 
-    // username/pass là 2 tham số thư viện passport ném về
     async validateUser(username: string, pass: string): Promise<any> {
         const user = await this.usersService.findOneByUsername(username);
         if (user) {

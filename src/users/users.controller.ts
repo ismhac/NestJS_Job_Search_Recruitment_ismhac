@@ -104,4 +104,34 @@ export class UsersController {
     @User() user: IUser) {
     return await this.usersService.remove(id, user);
   }
+
+
+  // custom api
+  @Public()
+  @Patch(':userId/like_jobs/:jobId')
+  @ResponseMessage('Add like job success')
+  // swagger
+  @ApiOperation({ summary: 'API for like job' })
+  async addPreferJob(
+    @Param('userId') userId: string,
+    @Param('jobId') jobId: string) {
+    let result = await this.usersService.addPreferJob(userId, jobId);
+    return result;
+  }
+
+  @Public()
+  @Patch(':userId/unlike_jobs/:jobId')
+  @ResponseMessage('Add unlike job success')
+  // swagger
+  @ApiOperation({ summary: 'API for unlike jobs' })
+  async unPreferJob(
+    @Param('userId') userId: string,
+    @Param('jobId') jobId: string) {
+    let result = await this.usersService.unPreferJob(userId, jobId);
+    return result;
+  }
 }
+
+
+
+
