@@ -103,6 +103,10 @@ export class RegisterUserDto {
         _id: mongoose.Schema.Types.ObjectId;
         name: string
     }[]
+
+    @IsOptional()
+    @ApiHideProperty()
+    listCv: string[]
 }
 
 

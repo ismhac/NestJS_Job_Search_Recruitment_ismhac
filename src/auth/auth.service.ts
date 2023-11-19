@@ -120,7 +120,7 @@ export class AuthService {
     }
 
     async login(user: IUser, response: Response) {
-        const { _id, name, email, role, permissions, avatar } = user;
+        const { _id, name, email, role, permissions, avatar, listCv } = user;
         const payload = {
             sub: "token login",
             iss: "from server",
@@ -129,6 +129,7 @@ export class AuthService {
             email,
             role,
             avatar,
+            // listCv
             // permissions
         }
 
@@ -146,14 +147,15 @@ export class AuthService {
         return {
             access_token: this.jwtService.sign(payload),
             refresh_token: refresh_token,
-            user: {
-                _id,
-                name,
-                email,
-                role,
-                avatar,
-                // permissions
-            }
+            // user: {
+            //     _id,
+            //     name,
+            //     email,
+            //     role,
+            //     avatar,
+            //     listCv,
+            //     // permissions
+            // }
         };
     }
 }

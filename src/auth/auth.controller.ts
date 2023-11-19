@@ -61,7 +61,8 @@ export class AuthController {
         const getUser = await this.usersService.findUsersById(user._id);
         // console.log(getUser);
         user.avatar = getUser.avatar;
-        console.table({ avatar: user.avatar });
+        user.listCv = getUser.listCv;
+        // console.table({ avatar: user.avatar });
         return { user }
     }
 

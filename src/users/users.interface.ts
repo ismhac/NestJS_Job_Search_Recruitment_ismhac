@@ -7,6 +7,7 @@ export interface IUser {
         name: string;
     };
     avatar: string;
+    listCv: string[];
     permissions?: {
         _id: string;
         name: string,
