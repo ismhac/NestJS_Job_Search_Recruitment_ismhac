@@ -88,6 +88,7 @@ async function bootstrap() {
     const initialPermissions = routesWithRoute.map(route => ({
       apiPath: route.route.path,
       method: Object.keys(route.route.methods)[0].toUpperCase(),
+      module: route.route.path.split("/")[3]?.toUpperCase(),
     }));
 
     // init permissions data
@@ -97,25 +98,5 @@ async function bootstrap() {
     let databaseService = await app.get(DatabasesService);
     await databaseService.initData();
   });
-
-  // const permissionService = app.get(PermissionsService);
-
-  // // get info from existingRoutes
-  // const server: any = app.getHttpServer();
-  // const existingRoutes = server._events.request._router;
-  // const routesWithRoute = existingRoutes.stack.filter(layer => layer.route);
-
-  // // create array permissions from routes info
-  // const initialPermissions = routesWithRoute.map(route => ({
-  //   apiPath: route.route.path,
-  //   method: Object.keys(route.route.methods)[0].toUpperCase(),
-  // }));
-
-  // // init permissions data
-  // // console.table(initialPermissions);
-  // await permissionService.initializePermissions(initialPermissions);
-
-  // let databaseService = await app.get(DatabasesService);
-  // await databaseService.onModuleInit();
 }
 bootstrap();
