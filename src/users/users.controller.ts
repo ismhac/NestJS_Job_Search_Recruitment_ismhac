@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -128,6 +128,17 @@ export class UsersController {
     @Param('userId') userId: string,
     @Param('jobId') jobId: string) {
     let result = await this.usersService.unPreferJob(userId, jobId);
+    return result;
+  }
+
+
+  @Public()
+  @Get("reset-password/:email")
+  @ResponseMessage("Reset password")
+  // swagger
+  @ApiOperation({ summary: 'API reset password' })
+  async resetPassword(@Param('email') email: string) {
+    let result = await this.usersService.requestPasswordReset(email);
     return result;
   }
 }

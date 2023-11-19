@@ -93,4 +93,20 @@ export class PermissionsService {
     })
     return this.permissionModel.softDelete({ _id: id })
   }
+
+  // 
+  async initializePermissions(permissions: { apiPath: string, method: string }[]) {
+    for (const permission of permissions) {
+      await this.createIfNotExists(permission);
+    }
+  }
+
+  private async createIfNotExists(permission: { apiPath: string, method: string }) {
+    const existingPermission = await this.permissionModel.findOne(permission).exec();
+
+    if (!existingPermission) {
+      const newPermission = new this.permissionModel(permission);
+      await newPermission.save();
+    }
+  }
 }

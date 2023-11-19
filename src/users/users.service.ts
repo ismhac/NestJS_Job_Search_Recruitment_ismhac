@@ -9,10 +9,11 @@ import { User as UserDecorator } from 'src/decorator/customize';
 import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
 import { CreateUserDto, RegisterRecruiterDto, RegisterUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User, UserDocument, User as UserModel } from './schemas/user.schema';
+import { UserDocument, User as UserModel } from './schemas/user.schema';
 import { IUser } from './users.interface';
 import { Company, CompanyDocument } from 'src/companies/schemas/company.schema';
 import { Job, JobDocument } from 'src/jobs/schemas/job.schema';
+import { MailerService } from '@nestjs-modules/mailer';
 
 
 @Injectable()
@@ -29,7 +30,9 @@ export class UsersService {
     private companyModule: SoftDeleteModel<CompanyDocument>,
 
     @InjectModel(Job.name)
-    private JobModule: SoftDeleteModel<JobDocument>
+    private JobModule: SoftDeleteModel<JobDocument>,
+
+    private mailerService: MailerService,
   ) { }
 
   getHashPassword = (password: string) => {
@@ -37,6 +40,27 @@ export class UsersService {
     const hash = hashSync(password, salt);
     return hash;
   }
+
+
+  requestPasswordReset = async (email) => {
+
+    const existingUser = await this.userModel.findOne({ email });
+
+    if (!existingUser) throw new Error(`Email ${email} does not exist`);
+
+    const resetPasswordLink = `hhhh`;
+    await this.mailerService.sendMail({
+      to: email,
+      from: '"Support Team" <support@itjobs.com>', // override default from
+      subject: 'Welcome to Nice App! Confirm your Email',
+      template: 'resetPass',
+      context: {
+        name: existingUser.name,
+        link: resetPasswordLink,
+      }
+    })
+    return "OK";
+  };
 
   findUserByToken = async (refreshToken: string) => {
     return await this.userModel.findOne(

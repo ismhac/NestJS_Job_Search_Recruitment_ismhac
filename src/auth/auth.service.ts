@@ -120,7 +120,7 @@ export class AuthService {
     }
 
     async login(user: IUser, response: Response) {
-        const { _id, name, email, role, permissions } = user;
+        const { _id, name, email, role, permissions, avatar } = user;
         const payload = {
             sub: "token login",
             iss: "from server",
@@ -128,6 +128,7 @@ export class AuthService {
             name,
             email,
             role,
+            avatar,
             // permissions
         }
 
@@ -150,6 +151,7 @@ export class AuthService {
                 name,
                 email,
                 role,
+                avatar,
                 // permissions
             }
         };
