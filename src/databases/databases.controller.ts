@@ -3,5 +3,5 @@ import { DatabasesService } from './databases.service';
 
 @Controller('databases')
 export class DatabasesController {
-  constructor(private readonly databasesService: DatabasesService) {}
+  constructor(private readonly databasesService: DatabasesService) { }
 }

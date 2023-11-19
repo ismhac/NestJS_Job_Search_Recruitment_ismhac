@@ -8,8 +8,8 @@ import { join } from 'path';
 import { AppModule } from './app.module';
 import { JwtAuthGuard } from './auth/guard/jwt-auth.guard';
 import { TransformInterceptor } from './core/transform.interceptor';
-import expressListRoutes from 'express-list-routes';
 import { PermissionsService } from './permissions/permissions.service';
+import { DatabasesService } from './databases/databases.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -75,40 +75,47 @@ async function bootstrap() {
     },
   });
 
-  await app.listen(configService.get<string>('PORT') || 8000);
 
+  await app.listen(configService.get<string>('PORT') || 8000, async () => {
+    const permissionService = app.get(PermissionsService);
 
+    // get info from existingRoutes
+    const server: any = app.getHttpServer();
+    const existingRoutes = server._events.request._router;
+    const routesWithRoute = existingRoutes.stack.filter(layer => layer.route);
+
+    // create array permissions from routes info
+    const initialPermissions = routesWithRoute.map(route => ({
+      apiPath: route.route.path,
+      method: Object.keys(route.route.methods)[0].toUpperCase(),
+    }));
+
+    // init permissions data
+    // console.table(initialPermissions);
+    await permissionService.initializePermissions(initialPermissions);
+
+    let databaseService = await app.get(DatabasesService);
+    await databaseService.initData();
+  });
+
+  // const permissionService = app.get(PermissionsService);
+
+  // // get info from existingRoutes
   // const server: any = app.getHttpServer();
   // const existingRoutes = server._events.request._router;
-  // expressListRoutes(existingRoutes);
-  // // console.log(existingRoutes);
-
   // const routesWithRoute = existingRoutes.stack.filter(layer => layer.route);
 
-  // console.log(`Tổng số routes có Route: ${routesWithRoute.length}`);
+  // // create array permissions from routes info
+  // const initialPermissions = routesWithRoute.map(route => ({
+  //   apiPath: route.route.path,
+  //   method: Object.keys(route.route.methods)[0].toUpperCase(),
+  // }));
 
-  // routesWithRoute.forEach((route, index) => {
-  //   const method = Object.keys(route.route.methods)[0].toUpperCase();
-  //   const path = route.route.path;
-  //   console.log(`Route ${index + 1}: Method: ${method}, Path: ${path}`);
-  // });
-  const permissionService = app.get(PermissionsService);
+  // // init permissions data
+  // // console.table(initialPermissions);
+  // await permissionService.initializePermissions(initialPermissions);
 
-  // Lấy thông tin từ existingRoutes
-  const server: any = app.getHttpServer();
-  const existingRoutes = server._events.request._router;
-  const routesWithRoute = existingRoutes.stack.filter(layer => layer.route);
-
-  // Tạo mảng permissions từ thông tin routes
-  const initialPermissions = routesWithRoute.map(route => ({
-    apiPath: route.route.path,
-    method: Object.keys(route.route.methods)[0].toUpperCase(),
-  }));
-
-  // Khởi tạo dữ liệu quyền
-  console.table(initialPermissions);
-  await permissionService.initializePermissions(initialPermissions);
-
-
+  // let databaseService = await app.get(DatabasesService);
+  // await databaseService.onModuleInit();
 }
 bootstrap();

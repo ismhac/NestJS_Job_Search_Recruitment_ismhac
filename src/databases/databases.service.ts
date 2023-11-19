@@ -6,7 +6,7 @@ import { Permission, PermissionDocument } from 'src/permissions/schemas/permissi
 import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
 import { User, UserDocument } from 'src/users/schemas/user.schema';
 import { UsersService } from 'src/users/users.service';
-import { ROLE_ADMIN, ROLE_HR, INIT_PERMISSIONS, ROLE_USER } from './sample';
+import { ROLE_ADMIN, ROLE_HR, ROLE_USER } from './sample';
 
 @Injectable()
 export class DatabasesService implements OnModuleInit {
@@ -28,6 +28,99 @@ export class DatabasesService implements OnModuleInit {
     ) { }
 
     async onModuleInit() {
+        // const isInit = this.configService.get<string>('SHOULD_INIT');
+        // if (Boolean(isInit)) {
+
+        //     const countUser = await this.userModel.count({});
+        //     const countPermission = await this.permissionModel.count({});
+        //     const countRole = await this.roleModel.count({});
+
+        //     // create permission
+        //     // if (countPermission === 0) {
+        //     //     await this.permissionModel.insertMany(INIT_PERMISSIONS); // bulk create 
+        //     // }
+
+        //     // create role
+        //     if (countRole === 0) {
+        //         const adminPermissions = await this.permissionModel.find({}).select("_id");
+        //         const userPermissions = await this.permissionModel.find({
+        //             apiPath: {
+        //                 $in: [
+        //                     "/api/v1/users",
+        //                 ]
+        //             }
+        //         }).select("_id");
+
+        //         console.log(userPermissions);
+
+
+        //         await this.roleModel.insertMany([ // bulk create 
+        //             {
+        //                 name: ROLE_ADMIN,
+        //                 description: "Admin has full permissions",
+        //                 isActive: true,
+        //                 permissions: adminPermissions
+        //             },
+        //             {
+        //                 name: ROLE_USER,
+        //                 description: "User/Candidate in system",
+        //                 isActive: true,
+        //                 permissions: [] // not set permission, just create role
+        //             },
+        //             {
+        //                 name: ROLE_HR,
+        //                 description: "HR in system",
+        //                 isActive: true,
+        //                 permissions: []
+        //             }
+        //         ]);
+        //     }
+
+        //     // create user
+        //     if (countUser === 0) {
+        //         const adminRole = await this.roleModel.findOne({ name: ROLE_ADMIN });
+        //         const userRole = await this.roleModel.findOne({ name: ROLE_USER });
+        //         const hrRole = await this.roleModel.findOne({ name: ROLE_HR });
+        //         await this.userModel.insertMany([   // bulk create
+        //             {
+        //                 name: "Admin Init",
+        //                 email: "initadmin@gmail.com",
+        //                 password: this.userService.getHashPassword(this.configService.get<string>('INIT_PASSWORD_ADMIN')),
+        //                 age: 20,
+        //                 gender: "MALE",
+        //                 address: "VietNam",
+        //                 role: adminRole?._id,
+        //             },
+        //             {
+        //                 name: "HR Init",
+        //                 email: "inithr@gmail.com",
+        //                 password: this.userService.getHashPassword(this.configService.get<string>('INIT_PASSWORD_HR')),
+        //                 age: 24,
+        //                 gender: "FEMALE",
+        //                 address: "VietNam",
+        //                 role: hrRole?._id,
+        //             },
+        //             {
+        //                 name: "User init",
+        //                 email: "inituser@gmail.com",
+        //                 password: this.userService.getHashPassword(this.configService.get<string>('INIT_PASSWORD_USER')),
+        //                 age: 20,
+        //                 gender: "MALE",
+        //                 address: "VietNam",
+        //                 role: userRole?._id,
+        //             },
+        //         ])
+        //     }
+
+        //     // check isCreate sample data
+        //     if (countUser > 0 && countPermission > 0 && countRole > 0) {
+        //         this.logger.log("==> Already init sample data");
+        //     }
+        // }
+    }
+
+
+    async initData() {
         const isInit = this.configService.get<string>('SHOULD_INIT');
         if (Boolean(isInit)) {
 
@@ -36,31 +129,56 @@ export class DatabasesService implements OnModuleInit {
             const countRole = await this.roleModel.count({});
 
             // create permission
-            if (countPermission === 0) {
-                await this.permissionModel.insertMany(INIT_PERMISSIONS); // bulk create 
-            }
+            // if (countPermission === 0) {
+            //     await this.permissionModel.insertMany(INIT_PERMISSIONS); // bulk create 
+            // }
 
             // create role
             if (countRole === 0) {
-                const permissions = await this.permissionModel.find({}).select("_id");
+                const adminPermissions = await this.permissionModel.find({}).select("_id");
+                const userPermissions = await this.permissionModel.find({
+                    $or: [
+                        { apiPath: { $regex: "/api/v1/users", $options: "i" } },
+                        { apiPath: { $regex: "/api/v1/jobs", $options: "i" } },
+                        { apiPath: { $regex: "/api/v1/companies", $options: "i" } },
+                        { apiPath: { $regex: "/api/v1/resumes", $options: "i" } },
+                        { apiPath: { $regex: "/api/v1/subscribers", $options: "i" } },
+                        // Add more paths here...
+                    ]
+                }).select("_id");
+
+                const hrPermissions = await this.permissionModel.find({
+                    $or: [
+                        { apiPath: { $regex: "/api/v1/users", $options: "i" } },
+                        { apiPath: { $regex: "/api/v1/jobs", $options: "i" } },
+                        { apiPath: { $regex: "/api/v1/companies", $options: "i" } },
+                        { apiPath: { $regex: "/api/v1/resumes", $options: "i" } },
+                        { apiPath: { $regex: "/api/v1/subscribers", $options: "i" } },
+                        // Add more paths here...
+                    ]
+                }).select("_id");
+
+                // console.log(userPermissions);
+
+
                 await this.roleModel.insertMany([ // bulk create 
                     {
                         name: ROLE_ADMIN,
                         description: "Admin has full permissions",
                         isActive: true,
-                        permissions: permissions
+                        permissions: adminPermissions
                     },
                     {
                         name: ROLE_USER,
                         description: "User/Candidate in system",
                         isActive: true,
-                        permissions: [] // not set permission, just create role
+                        permissions: userPermissions
                     },
                     {
                         name: ROLE_HR,
                         description: "HR in system",
                         isActive: true,
-                        permissions: []
+                        permissions: hrPermissions
                     }
                 ]);
             }
