@@ -141,8 +141,25 @@ export class UsersController {
     let result = await this.usersService.requestPasswordReset(email);
     return result;
   }
-}
 
+  @Get(":id/prefer-jobs")
+  @ResponseMessage("Get all prefer jobs of user success")
+  // swagger
+  @ApiOperation({ summary: 'API for get all prefer jobs of user' })
+  async getAllPreferJob(@Param('id') userId: string) {
+    let result = await this.usersService.getAllPreferJob(userId);
+    return result;
+  }
+
+  @Get(":id/apply-jobs")
+  @ResponseMessage("Get all apply jobs of user success")
+  // swagger
+  @ApiOperation({ summary: 'API for get all apply jobs of user' })
+  async getAllApplyJob(@Param('id') userId: string) {
+    let result = await this.usersService.getAllApplyJob(userId);
+    return result;
+  }
+}
 
 
 

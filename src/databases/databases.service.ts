@@ -134,6 +134,56 @@ export class DatabasesService implements OnModuleInit {
             // }
 
             // create role
+            if (countRole != 0) {
+                const adminRole = await this.roleModel.findOne({ name: ROLE_ADMIN });
+                const allPermissions = await this.permissionModel.find({}).select("_id");
+                if (adminRole) {
+                    const countAdminPermissions = await adminRole.permissions.length;
+                    if (countAdminPermissions < countPermission) {
+                        await adminRole.updateOne({
+                            permissions: allPermissions
+                        })
+                    }
+                }
+                // console.table({ adminRole });
+
+                const userRole = await this.roleModel.findOne({ name: ROLE_USER });
+                const userPermissions = await this.permissionModel.find({
+                    $or: [
+                        { apiPath: { $regex: "/api/v1/users", $options: "i" } },
+                        { apiPath: { $regex: "/api/v1/jobs", $options: "i" } },
+                        { apiPath: { $regex: "/api/v1/companies", $options: "i" } },
+                        { apiPath: { $regex: "/api/v1/resumes", $options: "i" } },
+                        { apiPath: { $regex: "/api/v1/subscribers", $options: "i" } },
+                        // Add more paths here...
+                    ]
+                }).select("_id");
+
+                await userRole.updateOne({
+                    permissions: userPermissions
+                })
+
+
+                const hrRole = await this.roleModel.findOne({ name: ROLE_HR });
+                const hrPermissions = await this.permissionModel.find({
+                    $or: [
+                        { apiPath: { $regex: "/api/v1/users", $options: "i" } },
+                        { apiPath: { $regex: "/api/v1/jobs", $options: "i" } },
+                        { apiPath: { $regex: "/api/v1/companies", $options: "i" } },
+                        { apiPath: { $regex: "/api/v1/resumes", $options: "i" } },
+                        { apiPath: { $regex: "/api/v1/subscribers", $options: "i" } },
+                        // Add more paths here...
+                    ]
+                }).select("_id");
+
+                await hrRole.updateOne({
+                    permissions: hrPermissions
+                })
+
+                // console.table({ userRole: userRole.permissions.length, hrRole: hrRole.permissions.length });
+            }
+
+
             if (countRole === 0) {
                 const adminPermissions = await this.permissionModel.find({}).select("_id");
                 const userPermissions = await this.permissionModel.find({

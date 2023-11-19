@@ -14,6 +14,7 @@ import { IUser } from './users.interface';
 import { Company, CompanyDocument } from 'src/companies/schemas/company.schema';
 import { Job, JobDocument } from 'src/jobs/schemas/job.schema';
 import { MailerService } from '@nestjs-modules/mailer';
+import { Resume, ResumeDocument } from 'src/resumes/schemas/resume.schema';
 
 
 @Injectable()
@@ -32,6 +33,9 @@ export class UsersService {
     @InjectModel(Job.name)
     private JobModule: SoftDeleteModel<JobDocument>,
 
+    @InjectModel(Resume.name)
+    private ResumeModule: SoftDeleteModel<ResumeDocument>,
+
     private mailerService: MailerService,
   ) { }
 
@@ -43,6 +47,34 @@ export class UsersService {
 
   async findUsersById(id: String) {
     return await this.userModel.findById(id);
+  }
+
+
+  async getAllApplyJob(userId: String) {
+    const resumes = await this.ResumeModule.find({ userId: userId }).select("+_id +jobId +status");
+    const jobs = await Promise.all(resumes.map(async (resume) => {
+      let job = await this.JobModule.findById(resume.jobId).select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description");
+      return { job, status: resume.status }
+    }));
+
+    console.log(jobs);
+    return { jobs }
+  }
+
+
+  async getAllPreferJob(userId: String) {
+    const preferJobs = await this.userModel.findById(userId);
+
+    console.log(preferJobs);
+
+    const jobs = await this.JobModule.find({
+      _id: {
+        $in: preferJobs?.preferJobs
+      },
+      isActive: true
+    }).select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description")
+
+    return { jobs }
   }
 
 
