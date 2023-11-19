@@ -41,6 +41,10 @@ export class UsersService {
     return hash;
   }
 
+  async findUsersById(id: String) {
+    return await this.userModel.findById(id);
+  }
+
 
   requestPasswordReset = async (email) => {
 
