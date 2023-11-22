@@ -43,3 +43,8 @@ export class CreateUserCvDto {
     @IsMongoId({ message: 'jobId is a mongoId' })
     jobId: mongoose.Schema.Types.ObjectId;
 }
+
+
+export class createStorageResumeDto{
+    
+}

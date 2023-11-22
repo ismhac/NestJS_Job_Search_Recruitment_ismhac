@@ -8,6 +8,7 @@ import { RegisterRecruiterDto, RegisterUserDto, UserLoginDto } from "src/users/d
 import { IUser } from "src/users/users.interface";
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./guard/local-auth.guard";
+import { UsersService } from "src/users/users.service";
 
 
 @ApiTags("APIs that manage authentication and permissions")
@@ -16,6 +17,7 @@ export class AuthController {
     constructor(
         private authService: AuthService,
         private roleService: RolesService,
+        private usersService: UsersService,
         // private
     ) { }
 
@@ -55,6 +57,12 @@ export class AuthController {
     async handleGetAccount(@User() user: IUser) { // req.user
         const temp = await this.roleService.findOne(user.role._id) as any; // disable check type
         user.permissions = temp.permissions;
+
+        const getUser = await this.usersService.findUsersById(user._id);
+        // console.log(getUser);
+        user.avatar = getUser.avatar;
+        user.listCv = getUser.listCv;
+        // console.table({ avatar: user.avatar });
         return { user }
     }
 

@@ -1,5 +1,5 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiProperty, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -104,4 +104,62 @@ export class UsersController {
     @User() user: IUser) {
     return await this.usersService.remove(id, user);
   }
+
+
+  // custom api
+  @Public()
+  @Patch(':userId/like_jobs/:jobId')
+  @ResponseMessage('Add like job success')
+  // swagger
+  @ApiOperation({ summary: 'API for like job' })
+  async addPreferJob(
+    @Param('userId') userId: string,
+    @Param('jobId') jobId: string) {
+    let result = await this.usersService.addPreferJob(userId, jobId);
+    return result;
+  }
+
+  @Public()
+  @Patch(':userId/unlike_jobs/:jobId')
+  @ResponseMessage('Add unlike job success')
+  // swagger
+  @ApiOperation({ summary: 'API for unlike jobs' })
+  async unPreferJob(
+    @Param('userId') userId: string,
+    @Param('jobId') jobId: string) {
+    let result = await this.usersService.unPreferJob(userId, jobId);
+    return result;
+  }
+
+
+  @Public()
+  @Get("reset-password/:email")
+  @ResponseMessage("Reset password")
+  // swagger
+  @ApiOperation({ summary: 'API reset password' })
+  async resetPassword(@Param('email') email: string) {
+    let result = await this.usersService.requestPasswordReset(email);
+    return result;
+  }
+
+  @Get(":id/prefer-jobs")
+  @ResponseMessage("Get all prefer jobs of user success")
+  // swagger
+  @ApiOperation({ summary: 'API for get all prefer jobs of user' })
+  async getAllPreferJob(@Param('id') userId: string) {
+    let result = await this.usersService.getAllPreferJob(userId);
+    return result;
+  }
+
+  @Get(":id/apply-jobs")
+  @ResponseMessage("Get all apply jobs of user success")
+  // swagger
+  @ApiOperation({ summary: 'API for get all apply jobs of user' })
+  async getAllApplyJob(@Param('id') userId: string) {
+    let result = await this.usersService.getAllApplyJob(userId);
+    return result;
+  }
 }
+
+
+

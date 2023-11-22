@@ -101,7 +101,6 @@ export class AuthService {
         return result;
     }
 
-    // username/pass là 2 tham số thư viện passport ném về
     async validateUser(username: string, pass: string): Promise<any> {
         const user = await this.usersService.findOneByUsername(username);
         if (user) {
@@ -121,7 +120,7 @@ export class AuthService {
     }
 
     async login(user: IUser, response: Response) {
-        const { _id, name, email, role, permissions } = user;
+        const { _id, name, email, role, permissions, avatar, listCv } = user;
         const payload = {
             sub: "token login",
             iss: "from server",
@@ -129,6 +128,8 @@ export class AuthService {
             name,
             email,
             role,
+            avatar,
+            // listCv
             // permissions
         }
 
@@ -146,13 +147,15 @@ export class AuthService {
         return {
             access_token: this.jwtService.sign(payload),
             refresh_token: refresh_token,
-            user: {
-                _id,
-                name,
-                email,
-                role,
-                // permissions
-            }
+            // user: {
+            //     _id,
+            //     name,
+            //     email,
+            //     role,
+            //     avatar,
+            //     listCv,
+            //     // permissions
+            // }
         };
     }
 }

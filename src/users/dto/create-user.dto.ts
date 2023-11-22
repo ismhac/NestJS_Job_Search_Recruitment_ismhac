@@ -17,6 +17,14 @@ class Company {
     name: string;
 }
 
+class Job {
+    @IsNotEmpty()
+    _id: mongoose.Schema.Types.ObjectId
+
+    @IsNotEmpty()
+    name: string
+}
+
 export class CreateUserDto {
 
 
@@ -88,6 +96,17 @@ export class RegisterUserDto {
     // @IsNotEmpty({ message: 'Address is required' })
     @ApiHideProperty()
     address: string;
+
+    @IsOptional()
+    @ApiHideProperty()
+    preferJobs: {
+        _id: mongoose.Schema.Types.ObjectId;
+        name: string
+    }[]
+
+    @IsOptional()
+    @ApiHideProperty()
+    listCv: string[]
 }
 
 

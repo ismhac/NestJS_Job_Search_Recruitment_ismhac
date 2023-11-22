@@ -12,6 +12,9 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserDocument, User as UserModel } from './schemas/user.schema';
 import { IUser } from './users.interface';
 import { Company, CompanyDocument } from 'src/companies/schemas/company.schema';
+import { Job, JobDocument } from 'src/jobs/schemas/job.schema';
+import { MailerService } from '@nestjs-modules/mailer';
+import { Resume, ResumeDocument } from 'src/resumes/schemas/resume.schema';
 
 
 @Injectable()
@@ -25,7 +28,15 @@ export class UsersService {
     private roleModule: SoftDeleteModel<RoleDocument>,
 
     @InjectModel(Company.name)
-    private companyModule: SoftDeleteModel<CompanyDocument>
+    private companyModule: SoftDeleteModel<CompanyDocument>,
+
+    @InjectModel(Job.name)
+    private JobModule: SoftDeleteModel<JobDocument>,
+
+    @InjectModel(Resume.name)
+    private ResumeModule: SoftDeleteModel<ResumeDocument>,
+
+    private mailerService: MailerService,
   ) { }
 
   getHashPassword = (password: string) => {
@@ -33,6 +44,59 @@ export class UsersService {
     const hash = hashSync(password, salt);
     return hash;
   }
+
+  async findUsersById(id: String) {
+    return await this.userModel.findById(id);
+  }
+
+
+  async getAllApplyJob(userId: String) {
+    const resumes = await this.ResumeModule.find({ userId: userId }).select("+_id +jobId +status");
+    const jobs = await Promise.all(resumes.map(async (resume) => {
+      let job = await this.JobModule.findById(resume.jobId).select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description");
+      return { job, status: resume.status }
+    }));
+
+    console.log(jobs);
+    return { jobs }
+  }
+
+
+  async getAllPreferJob(userId: String) {
+    const preferJobs = await this.userModel.findById(userId);
+
+    console.log(preferJobs);
+
+    const jobs = await this.JobModule.find({
+      _id: {
+        $in: preferJobs?.preferJobs
+      },
+      isActive: true
+    }).select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description")
+
+    return { jobs }
+  }
+
+
+  requestPasswordReset = async (email) => {
+
+    const existingUser = await this.userModel.findOne({ email });
+
+    if (!existingUser) throw new Error(`Email ${email} does not exist`);
+
+    const resetPasswordLink = `hhhh`;
+    await this.mailerService.sendMail({
+      to: email,
+      from: '"Support Team" <support@itjobs.com>', // override default from
+      subject: 'Welcome to Nice App! Confirm your Email',
+      template: 'resetPass',
+      context: {
+        name: existingUser.name,
+        link: resetPasswordLink,
+      }
+    })
+    return "OK";
+  };
 
   findUserByToken = async (refreshToken: string) => {
     return await this.userModel.findOne(
@@ -50,9 +114,97 @@ export class UsersService {
     )
   }
 
+  async addPreferJob(userId: string, jobId: string) {
+    let existingJobs = await this.JobModule.findById({ _id: jobId });
+    let existingUser = await this.userModel.findById({ _id: userId });
+    if (!existingJobs) {
+      throw new BadRequestException(`Job: ${jobId} does not exist in the system. Please use another job!`)
+    }
+    if (!existingUser) {
+      throw new BadRequestException(`User: ${userId} does not exist in the system. Please use another user!`)
+    }
+
+    let updatedJob = await this.JobModule.updateOne(
+      { _id: jobId },
+      {
+        $addToSet: {
+          preferredUsers: {
+            _id: userId,
+            name: existingUser.name,
+            email: existingUser.email
+          }
+        },
+        updatedBy: {
+          _id: existingUser._id,
+          email: existingUser.email
+        }
+      }
+    )
+    let updatedUser = await this.userModel.updateOne(
+      { _id: userId },
+      {
+        $addToSet: {
+          preferJobs: {
+            _id: jobId,
+            name: existingJobs.name
+          }
+        },
+        updatedBy: {
+          _id: existingUser._id,
+          email: existingUser.email
+        }
+      }
+    )
+    return {
+      addPreferredUsers: updatedJob,
+      addPreferJobs: updatedUser
+    }
+  }
+
+  async unPreferJob(userId: string, jobId: string) {
+    let existingJobs = await this.JobModule.findById({ _id: jobId });
+    let existingUser = await this.userModel.findById({ _id: userId });
+    if (!existingJobs) {
+      throw new BadRequestException(`Job: ${jobId} does not exist in the system. Please use another job!`)
+    }
+    if (!existingUser) {
+      throw new BadRequestException(`User: ${userId} does not exist in the system. Please use another user!`)
+    }
+
+    let updatedJob = await this.JobModule.updateOne(
+      { _id: jobId },
+      {
+        $pull: {
+          preferredUsers: { _id: userId }
+        },
+        updatedBy: {
+          _id: existingUser._id,
+          email: existingUser.email
+        }
+      }
+    )
+    let updatedUser = await this.userModel.updateOne(
+      { _id: userId },
+      {
+        $pull: {
+          preferJobs: { _id: jobId }
+        },
+        updatedBy: {
+          _id: existingUser._id,
+          email: existingUser.email
+        }
+      }
+    )
+    return {
+      removePreferredUsers: updatedJob,
+      removePreferJobs: updatedUser
+    }
+  }
+
+
   // name , email , password, age, gender, address
   async userRegister(user: RegisterUserDto) {
-    const { name, email, password, age, gender, address } = user;
+    const { name, email, password, age, gender, address, preferJobs } = user;
     // check email
     const isExist = await this.userModel.findOne({ email });
     if (isExist) {
@@ -70,7 +222,8 @@ export class UsersService {
       age,
       gender,
       address,
-      role: userRole?._id
+      role: userRole?._id,
+      preferJobs
     })
     return newRegister;
   }

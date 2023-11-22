@@ -36,4 +36,7 @@ export class UpdateUserDto extends PartialType(OmitType(CreateUserDto, ['passwor
     @ValidateNested()
     @Type(() => Company)
     company: Company;
+
+    @IsOptional()
+    listCv: string[]
 }

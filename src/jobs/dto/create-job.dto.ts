@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Transform, Type } from "class-transformer";
-import { IsArray, IsBoolean, IsDate, IsNotEmpty, IsNotEmptyObject, IsObject, IsString, ValidateNested } from "class-validator";
+import { IsArray, IsBoolean, IsDate, IsNotEmpty, IsNotEmptyObject, IsObject, IsOptional, IsString, ValidateNested } from "class-validator";
 import mongoose from "mongoose";
 
 class Company {
@@ -36,6 +36,15 @@ export class CreateJobDto {
     @ValidateNested()
     @Type(() => Company)
     company: Company;
+
+    @IsOptional()
+    @IsArray({ message: 'Preferred users must be an array' })
+    @IsObject({ each: true, message: 'Each preferred user must be an object' })
+    preferredUsers: {
+        _id: mongoose.Schema.Types.ObjectId;
+        name: string;
+        email: string;
+    }[];
 
 
     @IsNotEmpty({ message: 'Location is required' })

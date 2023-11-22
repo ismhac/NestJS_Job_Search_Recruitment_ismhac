@@ -35,6 +35,15 @@ export class User {
         name: string
     }
 
+    @Prop({ type: [String] })
+    listCv: string[]
+
+    @Prop({ type: [Object] })
+    preferJobs: {
+        _id: mongoose.Schema.Types.ObjectId;
+        name: string
+    }[]
+
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Role.name })
     role: mongoose.Schema.Types.ObjectId;
 

@@ -8,6 +8,8 @@ import { Permission, PermissionSchema } from 'src/permissions/schemas/permission
 import { Role, RoleSchema } from 'src/roles/schemas/role.schema';
 import { UsersService } from 'src/users/users.service';
 import { Company, CompanySchema } from 'src/companies/schemas/company.schema';
+import { Job, JobSchema } from 'src/jobs/schemas/job.schema';
+import { Resume, ResumeSchema } from 'src/resumes/schemas/resume.schema';
 
 
 @Module({
@@ -18,7 +20,9 @@ import { Company, CompanySchema } from 'src/companies/schemas/company.schema';
       { name: User.name, schema: UserSchema },
       { name: Permission.name, schema: PermissionSchema },
       { name: Role.name, schema: RoleSchema },
-      { name: Company.name, schema: CompanySchema }
+      { name: Company.name, schema: CompanySchema },
+      { name: Job.name, schema: JobSchema },
+      { name: Resume.name, schema: ResumeSchema }
     ])
   ],
 })

@@ -19,6 +19,13 @@ export class Job {
         logo: string;
     };
 
+    @Prop({ type: [Object] })
+    preferredUsers: {
+        _id: mongoose.Schema.Types.ObjectId;
+        name: string;
+        email: string;
+    }[];
+
     @Prop()
     location: string;
 
