@@ -10,7 +10,7 @@ import { Subscriber, SubscriberDocument } from 'src/subscribers/schemas/subscrib
 import { MailService } from './mail.service';
 
 
-@ApiTags('APIs for Managing Mail Information')
+@ApiTags('mails')
 @Controller('mail')
 export class MailController {
   constructor(

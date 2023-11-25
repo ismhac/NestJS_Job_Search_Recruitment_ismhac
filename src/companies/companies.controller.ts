@@ -1,12 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
 import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 
-@ApiTags('APIs for Managing Company Information')
+@ApiTags('companies')
 @Controller('companies')
 export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) { }
@@ -14,6 +14,7 @@ export class CompaniesController {
   @Post()
   @ResponseMessage('Create a new company successfully')
   // swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API create a new company' })
   @ApiBody({ type: CreateCompanyDto })
   create(@Body() createCompanyDto: CreateCompanyDto, @User() user: IUser) {
@@ -50,6 +51,7 @@ export class CompaniesController {
   @Patch(':id')
   @ResponseMessage('Update a company successfully')
   // swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API update a company by id' })
   @ApiBody({
     schema: {
@@ -86,6 +88,7 @@ export class CompaniesController {
   @Delete(':id')
   @ResponseMessage('Remove a company successfully')
   // swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API remove a company by id' })
   remove(@Param('id') id: string, @User() user: IUser) {
     return this.companiesService.remove(id, user);

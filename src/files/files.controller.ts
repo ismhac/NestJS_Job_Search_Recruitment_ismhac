@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Res, UploadedFile, UseFilters, UseInterceptors } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import { HttpExceptionFilter } from 'src/core/http-exception.filter';
 import { Public, ResponseMessage } from 'src/decorator/customize';
 import { UpdateFileDto } from './dto/update-file.dto';
@@ -19,12 +19,13 @@ export class FilesController {
     private configService: ConfigService,
   ) { }
 
-  @Public()
+  // @Public()
   @Post('upload')
-  @UseFilters(new HttpExceptionFilter())
+  @UseFilters(new HttpExceptionFilter()) 
   @ResponseMessage('Upload file successfully')
   @UseInterceptors(FileInterceptor('fileUpload'))
   //  swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API upload file' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -98,9 +99,10 @@ export class FilesController {
     }
   }
 
-  @Public()
+  // @Public()
   @Get('download-file/:fileId')
   //  swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API download file' })
   async downloadFileFromURL(
     @Res() res: Response,
@@ -123,24 +125,4 @@ export class FilesController {
       res.status(500).send(error);
     }
   }
-
-  // @Get()
-  // findAll() {
-  //   return this.filesService.findAll();
-  // }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.filesService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateFileDto: UpdateFileDto) {
-  //   return this.filesService.update(+id, updateFileDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.filesService.remove(+id);
-  // }
 }

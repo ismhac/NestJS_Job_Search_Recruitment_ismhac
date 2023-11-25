@@ -4,7 +4,7 @@ import { HealthCheck, HealthCheckService, MongooseHealthIndicator } from '@nestj
 import { Public, ResponseMessage } from 'src/decorator/customize';
 
 
-@ApiTags('APIs for Health Check')
+@ApiTags('health check app')
 @Controller('health')
 export class HealthController {
     constructor(

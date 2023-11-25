@@ -1,12 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
 import { CreatePermissionDto } from './dto/create-permission.dto';
 import { UpdatePermissionDto } from './dto/update-permission.dto';
 import { PermissionsService } from './permissions.service';
 
-@ApiTags('APIs for Managing Permission Information')
+@ApiTags('permissions')
 @Controller('permissions')
 export class PermissionsController {
   constructor(private readonly permissionsService: PermissionsService) { }
@@ -14,6 +14,7 @@ export class PermissionsController {
   @Post()
   @ResponseMessage('Permission created successfully')
   // swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API create a new permission' })
   @ApiBody({
     schema: {
@@ -46,6 +47,7 @@ export class PermissionsController {
   @Get()
   @ResponseMessage('Permissions fetched successfully')
   // swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API get all permissions' })
   @ApiQuery({ name: 'current', required: false, type: Number, description: 'Current page', example: 1 })
   @ApiQuery({ name: 'pageSize', required: false, type: Number, description: 'Page size', example: 10 })
@@ -64,6 +66,7 @@ export class PermissionsController {
   @Get(':id')
   @ResponseMessage('Permission fetched successfully')
   // swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API get a permission by id' })
   findOne(@Param('id') id: string) {
     return this.permissionsService.findOne(id);
@@ -72,6 +75,7 @@ export class PermissionsController {
   @Patch(':id')
   @ResponseMessage('Permission updated successfully')
   // swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API update a permission by id' })
   @ApiBody({
     schema: {
@@ -104,6 +108,7 @@ export class PermissionsController {
   @Delete(':id')
   @ResponseMessage('Permission deleted successfully')
   // swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API delete a permission by id' })
   remove(@Param('id') id: string, @User() user: IUser) {
     return this.permissionsService.remove(id, user);

@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
-import { ApiBody, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 import { Request, Response } from "express";
 import { Public, ResponseMessage, User } from "src/decorator/customize";
@@ -11,7 +11,7 @@ import { LocalAuthGuard } from "./guard/local-auth.guard";
 import { UsersService } from "src/users/users.service";
 
 
-@ApiTags("APIs that manage authentication and permissions")
+@ApiTags("authentications")
 @Controller("auth")
 export class AuthController {
     constructor(
@@ -24,6 +24,7 @@ export class AuthController {
     @Post('/logout')
     @ResponseMessage("Logout User")
     // swagger
+    @ApiBearerAuth('token')
     @ApiOperation({ summary: 'API logout' })
     handleLogout(
         @Res({ passthrough: true }) response: Response,
@@ -40,10 +41,11 @@ export class AuthController {
     //     return this.authService.processNewToken(refreshToken, response);
     // }
 
-    @Public()
+    // @Public()
     @Get('/refresh')
     @ResponseMessage("Get user by refresh token")
     // swagger
+    @ApiBearerAuth('token')
     @ApiOperation({ summary: 'API get user by refresh token' })
     handleRefreshToken(@Req() request: Request, @Res({ passthrough: true }) response: Response) { // req.user
         const refreshToken = request.headers.authorization;
@@ -53,6 +55,7 @@ export class AuthController {
     @Get('/account')
     @ResponseMessage("Get user information success")
     // swagger
+    @ApiBearerAuth('token')
     @ApiOperation({ summary: 'API get user information' })
     async handleGetAccount(@User() user: IUser) { // req.user
         const temp = await this.roleService.findOne(user.role._id) as any; // disable check type

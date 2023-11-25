@@ -21,7 +21,9 @@
     "dev:compodoc": "npx @compodoc/compodoc -p tsconfig.json -s",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "watch:build": "nest build --watch",
-    "watch:start:prod": "nodemon dist/main"
+    "watch:start:prod": "nodemon dist/main",
+    "w1": "npm run watch:build",
+    "w2": "npm run watch:start:prod"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "1.9.1",

@@ -1,12 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { JobsService } from './jobs.service';
 
-@ApiTags('APIs for Managing Job Information')
+@ApiTags('jobs')
 @Controller('jobs')
 export class JobsController {
   constructor(private readonly jobsService: JobsService) { }
@@ -14,6 +14,7 @@ export class JobsController {
   @Post()
   @ResponseMessage('Create a new job successfully')
   // swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API create a new job' })
   @ApiBody({
     schema: {
@@ -121,6 +122,7 @@ export class JobsController {
   @Patch(':id')
   @ResponseMessage('Update a job successfully')
   // swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API update a job by id' })
   @ApiBody({
     schema: {
@@ -201,6 +203,7 @@ export class JobsController {
   @Delete(':id')
   @ResponseMessage('Remove a job successfully')
   // swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API remove a job by id' })
   remove(
     @Param('id') id: string,

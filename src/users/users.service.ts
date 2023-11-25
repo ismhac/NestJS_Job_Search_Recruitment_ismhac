@@ -50,8 +50,8 @@ export class UsersService {
   }
 
 
-  async getAllApplyJob(userId: String) {
-    const resumes = await this.ResumeModule.find({ userId: userId }).select("+_id +jobId +status");
+  async getAllApplyJob(user: IUser) {
+    const resumes = await this.ResumeModule.find({ userId: user._id }).select("+_id +jobId +status");
     const jobs = await Promise.all(resumes.map(async (resume) => {
       let job = await this.JobModule.findById(resume.jobId).select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description");
       return { job, status: resume.status }
@@ -62,14 +62,14 @@ export class UsersService {
   }
 
 
-  async getAllPreferJob(userId: String) {
-    const preferJobs = await this.userModel.findById(userId);
+  async getAllPreferJob(user: IUser) {
+    const preferJobs = await this.userModel.findById(user._id).select("+preferJobs");
 
     console.log(preferJobs);
 
     const jobs = await this.JobModule.find({
       _id: {
-        $in: preferJobs?.preferJobs
+        $in: preferJobs
       },
       isActive: true
     }).select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description")
@@ -114,14 +114,14 @@ export class UsersService {
     )
   }
 
-  async addPreferJob(userId: string, jobId: string) {
+  async addPreferJob(user: IUser, jobId: string) {
     let existingJobs = await this.JobModule.findById({ _id: jobId });
-    let existingUser = await this.userModel.findById({ _id: userId });
+    let existingUser = await this.userModel.findById({ _id: user._id });
     if (!existingJobs) {
       throw new BadRequestException(`Job: ${jobId} does not exist in the system. Please use another job!`)
     }
     if (!existingUser) {
-      throw new BadRequestException(`User: ${userId} does not exist in the system. Please use another user!`)
+      throw new BadRequestException(`User: ${user._id} does not exist in the system. Please use another user!`)
     }
 
     let updatedJob = await this.JobModule.updateOne(
@@ -129,7 +129,7 @@ export class UsersService {
       {
         $addToSet: {
           preferredUsers: {
-            _id: userId,
+            _id: user._id,
             name: existingUser.name,
             email: existingUser.email
           }
@@ -141,7 +141,7 @@ export class UsersService {
       }
     )
     let updatedUser = await this.userModel.updateOne(
-      { _id: userId },
+      { _id: user._id },
       {
         $addToSet: {
           preferJobs: {
@@ -161,21 +161,21 @@ export class UsersService {
     }
   }
 
-  async unPreferJob(userId: string, jobId: string) {
+  async unPreferJob(user: IUser, jobId: string) {
     let existingJobs = await this.JobModule.findById({ _id: jobId });
-    let existingUser = await this.userModel.findById({ _id: userId });
+    let existingUser = await this.userModel.findById({ _id: user._id });
     if (!existingJobs) {
       throw new BadRequestException(`Job: ${jobId} does not exist in the system. Please use another job!`)
     }
     if (!existingUser) {
-      throw new BadRequestException(`User: ${userId} does not exist in the system. Please use another user!`)
+      throw new BadRequestException(`User: ${user._id} does not exist in the system. Please use another user!`)
     }
 
     let updatedJob = await this.JobModule.updateOne(
       { _id: jobId },
       {
         $pull: {
-          preferredUsers: { _id: userId }
+          preferredUsers: { _id: user._id }
         },
         updatedBy: {
           _id: existingUser._id,
@@ -184,7 +184,7 @@ export class UsersService {
       }
     )
     let updatedUser = await this.userModel.updateOne(
-      { _id: userId },
+      { _id: user._id },
       {
         $pull: {
           preferJobs: { _id: jobId }

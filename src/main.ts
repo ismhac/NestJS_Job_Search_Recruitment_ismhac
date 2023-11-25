@@ -65,9 +65,10 @@ async function bootstrap() {
       },
       'token',
     )
-    .addSecurityRequirements('token')
+    // .addSecurityRequirements('token')
     .build();
   const document = SwaggerModule.createDocument(app, config);
+
   SwaggerModule.setup('swagger', app, document, {
     swaggerOptions: {
       persistAuthorization: true,

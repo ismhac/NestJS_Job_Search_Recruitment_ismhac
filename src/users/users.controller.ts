@@ -1,12 +1,12 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { IUser } from './users.interface';
 import { UsersService } from './users.service';
 
-@ApiTags('APIs for Managing User Information')
+@ApiTags('users')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
@@ -14,6 +14,7 @@ export class UsersController {
   @Post()
   @ResponseMessage('Create a new user success')
   // swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API create a new user' })
   @ApiBody({
     schema: {
@@ -70,6 +71,8 @@ export class UsersController {
 
   @Get()
   @ResponseMessage('Get all user success')
+  //
+  @ApiBearerAuth('token')
   findAll(
     @Query('current') currentPage: string, // const currentPage: string = req.query.page
     @Query('pageSize') limit: string,      // const limit: string = req.query.limit
@@ -78,9 +81,12 @@ export class UsersController {
     return this.usersService.findAll(+currentPage, +limit, queryString);
   }
 
-  @Public()
+  // @Public()
   @Get(':id')
   @ResponseMessage('Get a user success')
+  //
+  @ApiBearerAuth('token')
+  @ApiOperation({ summary: 'API get a user by id' })
   async findOne(@Param('id') id: string) {
     return await this.usersService.findOne(id);
   }
@@ -89,6 +95,8 @@ export class UsersController {
   // @Public()
   @Patch(':id')
   @ResponseMessage('Update a user success')
+  //
+  @ApiBearerAuth('token')
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -99,6 +107,8 @@ export class UsersController {
 
   @Delete(':id')
   @ResponseMessage('Remove a user success')
+  //
+  @ApiBearerAuth('token')
   async remove(
     @Param('id') id: string,
     @User() user: IUser) {
@@ -107,27 +117,29 @@ export class UsersController {
 
 
   // custom api
-  @Public()
+  // @Public()
   @Patch(':userId/like_jobs/:jobId')
   @ResponseMessage('Add like job success')
   // swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API for like job' })
   async addPreferJob(
-    @Param('userId') userId: string,
+    @User() user: IUser,
     @Param('jobId') jobId: string) {
-    let result = await this.usersService.addPreferJob(userId, jobId);
+    let result = await this.usersService.addPreferJob(user, jobId);
     return result;
   }
 
-  @Public()
+  // @Public()
   @Patch(':userId/unlike_jobs/:jobId')
   @ResponseMessage('Add unlike job success')
   // swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API for unlike jobs' })
   async unPreferJob(
-    @Param('userId') userId: string,
+    @User() user: IUser,
     @Param('jobId') jobId: string) {
-    let result = await this.usersService.unPreferJob(userId, jobId);
+    let result = await this.usersService.unPreferJob(user, jobId);
     return result;
   }
 
@@ -145,18 +157,20 @@ export class UsersController {
   @Get(":id/prefer-jobs")
   @ResponseMessage("Get all prefer jobs of user success")
   // swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API for get all prefer jobs of user' })
-  async getAllPreferJob(@Param('id') userId: string) {
-    let result = await this.usersService.getAllPreferJob(userId);
+  async getAllPreferJob(@User() user: IUser) {
+    let result = await this.usersService.getAllPreferJob(user);
     return result;
   }
 
   @Get(":id/apply-jobs")
   @ResponseMessage("Get all apply jobs of user success")
   // swagger
+  @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API for get all apply jobs of user' })
-  async getAllApplyJob(@Param('id') userId: string) {
-    let result = await this.usersService.getAllApplyJob(userId);
+  async getAllApplyJob(@User() user: IUser) {
+    let result = await this.usersService.getAllApplyJob(user);
     return result;
   }
 }
