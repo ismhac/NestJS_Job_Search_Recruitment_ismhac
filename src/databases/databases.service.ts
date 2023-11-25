@@ -140,7 +140,10 @@ export class DatabasesService implements OnModuleInit {
             // create user
             if (!(await this.userModel.findOne({ email: "root@gmail.com" }) && await this.userModel.findOne({ email: "admin@gmail.com" }))) {
                 const adminRole = await this.roleModel.findOne({ name: ROLE_ADMIN });
-                if (!(await this.userModel.findOne({ email: "root@gmail.com" }))) {
+                const root = await this.userModel.findOne({ email: "root@gmail.com" });
+                const admin = await this.userModel.findOne({ email: "admin@gmail.com" });
+
+                if (!root) {
                     await this.userModel.create(
                         {
                             name: "root",
@@ -152,8 +155,13 @@ export class DatabasesService implements OnModuleInit {
                             role: adminRole?._id,
                         }
                     )
+                } else if (adminRole && root.role.toString() !== adminRole._id.toString()) {
+                    await root.updateOne({
+                        role: adminRole._id
+                    })
                 }
-                if (!await this.userModel.findOne({ email: "admin@gmail.com" })) {
+
+                if (!admin) {
                     await this.userModel.create(
                         {
                             name: "admin",
@@ -165,6 +173,28 @@ export class DatabasesService implements OnModuleInit {
                             role: adminRole?._id,
                         }
                     )
+                } else if (adminRole && admin.role.toString() !== adminRole._id.toString()) {
+                    await admin.updateOne({
+                        role: adminRole._id
+                    })
+                }
+            }
+
+            if (await this.userModel.findOne({ email: "root@gmail.com" }) || await this.userModel.findOne({ email: "admin@gmail.com" })) {
+                const adminRole = await this.roleModel.findOne({ name: ROLE_ADMIN });
+                const root = await this.userModel.findOne({ email: "root@gmail.com" });
+                const admin = await this.userModel.findOne({ email: "admin@gmail.com" });
+
+                if (adminRole && root.role.toString() !== adminRole._id.toString()) {
+                    await root.updateOne({
+                        role: adminRole._id
+                    })
+                }
+
+                if (adminRole && admin.role.toString() !== adminRole._id.toString()) {
+                    await admin.updateOne({
+                        role: adminRole._id
+                    })
                 }
             }
 
