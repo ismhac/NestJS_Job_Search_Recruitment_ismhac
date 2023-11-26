@@ -213,7 +213,7 @@ export class DatabasesService implements OnModuleInit {
                     "permissions": countPermissions,
                     "admin's permissions": (await this.roleModel.findOne({ name: ROLE_ADMIN })).permissions.length,
                     "user's permissions": (await this.roleModel.findOne({ name: ROLE_USER })).permissions.length,
-                    "hr's permissions": (await this.roleModel.findOne({ name: ROLE_HR })).permissions.length
+                    "hr's permissions": (await this.roleModel.findOne({ name: ROLE_HR })).permissions.length    
                 });
             }
         }

@@ -6,6 +6,10 @@ export interface IUser {
         _id: string;
         name: string;
     };
+    company?: {
+        _id: string;
+        name: string;
+    };
     avatar: string;
     listCv: string[];
     permissions?: {

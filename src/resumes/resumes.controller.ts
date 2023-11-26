@@ -19,7 +19,6 @@ export class ResumesController {
     return this.resumesService.findByUsers(user);
   }
 
-
   @Post()
   @ResponseMessage('create resume success')
   // swagger

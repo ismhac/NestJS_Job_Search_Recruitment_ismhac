@@ -67,6 +67,7 @@ export class AuthController {
         // console.log(getUser);
         user.avatar = getUser.avatar;
         user.listCv = getUser.listCv;
+        user.company = getUser.company as any;
         // console.table({ avatar: user.avatar });
         return { user }
     }
