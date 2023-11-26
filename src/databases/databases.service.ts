@@ -42,13 +42,11 @@ export class DatabasesService implements OnModuleInit {
                 const adminRole = await this.roleModel.findOne({ name: ROLE_ADMIN });
                 // check admin role
                 if (adminRole) {
-                    const countAdminPermissions = await adminRole.permissions.length;
-                    if (countAdminPermissions < countPermissions) {
-                        const allPermissions = await this.permissionModel.find({}).select("_id");
-                        await adminRole.updateOne({
-                            permissions: allPermissions
-                        })
-                    }
+                    const allPermissions = await this.permissionModel.find({}).select("_id");
+                    // First, unset the 'permissions' field
+                    await adminRole.updateOne({ $unset: { permissions: 1 } });
+                    // Then, set the 'permissions' field to 'allPermissions'
+                    await adminRole.updateOne({ $set: { permissions: allPermissions } });
                 }
 
                 // check user role
@@ -58,6 +56,7 @@ export class DatabasesService implements OnModuleInit {
                         apiPath: { $not: { $regex: "/api/v1/(roles|permissions)", $options: "i" } }
                     }).select("_id");
 
+                    await userRole.updateOne({ $unset: { permissions: 1 } })
                     await userRole.updateOne({
                         permissions: userPermissions
                     })
@@ -70,16 +69,17 @@ export class DatabasesService implements OnModuleInit {
                         apiPath: { $not: { $regex: "/api/v1/(roles|permissions)", $options: "i" } }
                     }).select("_id");
 
+                    await hrRole.updateOne({ $unset: { permissions: 1 } })
                     await hrRole.updateOne({
                         permissions: hrPermissions
                     })
                 }
 
-                console.table({
-                    "admin's permissions": adminRole.permissions.length,
-                    "user's permissions": userRole.permissions.length,
-                    "hr's permissions": hrRole.permissions.length
-                });
+                // console.table({
+                //     "admin's permissions": adminRole.permissions.length,
+                //     "user's permissions": userRole.permissions.length,
+                //     "hr's permissions": hrRole.permissions.length
+                // });
             }
 
             if (countRoles === 0) {
@@ -102,38 +102,47 @@ export class DatabasesService implements OnModuleInit {
                 ]);
 
                 const adminRole = await this.roleModel.findOne({ name: ROLE_ADMIN });
-                const allPermissions = await this.permissionModel.find({}).select("_id");
-
-                const countAdminPermissions = await adminRole.permissions.length;
-                if (countAdminPermissions < countPermissions) {
-                    await adminRole.updateOne({
-                        permissions: allPermissions
-                    })
+                // check admin role
+                if (adminRole) {
+                    const allPermissions = await this.permissionModel.find({}).select("_id");
+                    // First, unset the 'permissions' field
+                    await adminRole.updateOne({ $unset: { permissions: 1 } });
+                    // Then, set the 'permissions' field to 'allPermissions'
+                    await adminRole.updateOne({ $set: { permissions: allPermissions } });
                 }
 
 
+                // check user role
                 const userRole = await this.roleModel.findOne({ name: ROLE_USER });
-                const userPermissions = await this.permissionModel.find({
-                    apiPath: { $not: { $regex: "/api/v1/(roles|permissions)", $options: "i" } }
-                }).select("_id");
+                if (userRole) {
+                    const userPermissions = await this.permissionModel.find({
+                        apiPath: { $not: { $regex: "/api/v1/(roles|permissions)", $options: "i" } }
+                    }).select("_id");
 
-                await userRole.updateOne({
-                    permissions: userPermissions
-                })
+                    await userRole.updateOne({ $unset: { permissions: 1 } })
+                    await userRole.updateOne({
+                        permissions: userPermissions
+                    })
+                }
 
+                // check hr role
                 const hrRole = await this.roleModel.findOne({ name: ROLE_HR });
-                const hrPermissions = await this.permissionModel.find({
-                    apiPath: { $not: { $regex: "/api/v1/(roles|permissions)", $options: "i" } }
-                }).select("_id");
+                if (hrRole) {
+                    const hrPermissions = await this.permissionModel.find({
+                        apiPath: { $not: { $regex: "/api/v1/(roles|permissions)", $options: "i" } }
+                    }).select("_id");
 
-                await hrRole.updateOne({
-                    permissions: hrPermissions
-                })
-                console.table({
-                    "admin's permissions": adminRole.permissions.length,
-                    "user's permissions": userRole.permissions.length,
-                    "hr's permissions": hrRole.permissions.length
-                });
+                    await hrRole.updateOne({ $unset: { permissions: 1 } })
+                    await hrRole.updateOne({
+                        permissions: hrPermissions
+                    })
+                }
+
+                // console.table({
+                //     "admin's permissions": adminRole.permissions.length,
+                //     "user's permissions": userRole.permissions.length,
+                //     "hr's permissions": hrRole.permissions.length
+                // });
             }
 
             // create user
@@ -196,10 +205,16 @@ export class DatabasesService implements OnModuleInit {
                     })
                 }
             }
-
             // check isCreate sample data
             if (countUsers > 0 && countPermissions > 0 && countRoles > 0) {
-                console.table({ "users": countUsers, "roles": countRoles, "permissions": countPermissions });
+                console.table({
+                    "users": countUsers,
+                    "roles": countRoles,
+                    "permissions": countPermissions,
+                    "admin's permissions": (await this.roleModel.findOne({ name: ROLE_ADMIN })).permissions.length,
+                    "user's permissions": (await this.roleModel.findOne({ name: ROLE_USER })).permissions.length,
+                    "hr's permissions": (await this.roleModel.findOne({ name: ROLE_HR })).permissions.length
+                });
             }
         }
     }
