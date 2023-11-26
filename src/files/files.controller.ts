@@ -19,12 +19,82 @@ export class FilesController {
     private configService: ConfigService,
   ) { }
 
-  // @Public()
-  @Post('upload')
-  @UseFilters(new HttpExceptionFilter()) 
-  @ResponseMessage('Upload file successfully')
-  @UseInterceptors(FileInterceptor('fileUpload'))
-  //  swagger
+  // // @Public()
+  // @Post('upload')
+  // @UseFilters(new HttpExceptionFilter()) 
+  // @ResponseMessage('Upload file successfully')
+  // @UseInterceptors(FileInterceptor('fileUpload'))
+  // //  swagger
+  // @ApiBearerAuth('token')
+  // @ApiOperation({ summary: 'API upload file' })
+  // @ApiConsumes('multipart/form-data')
+  // @ApiBody({
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       fileUpload: {
+  //         type: 'string',
+  //         format: 'binary',
+  //       },
+  //     },
+  //   },
+  // })
+  // async uploadFile(@UploadedFile() file: Express.Multer.File) {
+  //   const CLIENT_ID = this.configService.get<string>('CLIENT_ID');
+  //   const CLIENT_SECRET = this.configService.get<string>('CLIENT_SECRET');
+  //   const REFRESH_TOKEN = this.configService.get<string>('REFRESH_TOKEN');
+  //   const REFRESH_URI = this.configService.get<string>('REFRESH_URI');
+  //   const FOLDER_NAME = this.configService.get<string>('FOLDER_NAME');
+
+  //   const oauth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REFRESH_URI);
+  //   oauth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+
+  //   const drive = google.drive({
+  //     version: 'v3',
+  //     auth: oauth2Client
+  //   });
+
+  //   const folders = await drive.files.list({
+  //     q: `mimeType='application/vnd.google-apps.folder' and name='${FOLDER_NAME}'`,
+  //   });
+  //   let folderId;
+
+  //   if (folders.data.files.length === 0) {
+  //     // Thư mục chưa tồn tại, tạo thư mục mới
+  //     const folder = await drive.files.create({
+  //       requestBody: {
+  //         name: FOLDER_NAME,
+  //         mimeType: 'application/vnd.google-apps.folder',
+  //       },
+  //     });
+  //     folderId = folder.data.id;
+  //   } else {
+  //     folderId = folders.data.files[0].id;
+  //   }
+
+  //   const response = await drive.files.create({
+  //     requestBody: {
+  //       name: file.filename,
+  //       mimeType: file.mimetype,
+  //       parents: [folderId],
+  //     },
+  //     media: {
+  //       mimeType: file.mimetype,
+  //       body: fs.createReadStream(file.path),
+  //     },
+  //   });
+
+  //   fs.unlinkSync(file.path);
+
+  //   const fileUrl = `https://drive.google.com/uc?id=${response.data.id}`;
+
+  //   return {
+  //     fileName: file.filename,
+  //     fileId: response.data.id,
+  //     fileUrl: fileUrl,
+  //   }
+  // }
+
   @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API upload file' })
   @ApiConsumes('multipart/form-data')
@@ -39,6 +109,10 @@ export class FilesController {
       },
     },
   })
+  @Post('upload')
+  @UseFilters(new HttpExceptionFilter())
+  @ResponseMessage('Upload file successfully')
+  @UseInterceptors(FileInterceptor('fileUpload'))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     const CLIENT_ID = this.configService.get<string>('CLIENT_ID');
     const CLIENT_SECRET = this.configService.get<string>('CLIENT_SECRET');
@@ -54,14 +128,13 @@ export class FilesController {
       auth: oauth2Client
     });
 
-
     const folders = await drive.files.list({
       q: `mimeType='application/vnd.google-apps.folder' and name='${FOLDER_NAME}'`,
     });
-    let folderId;
 
-    if (folders.data.files.length === 0) {
-      // Thư mục chưa tồn tại, tạo thư mục mới
+    let folderId = folders.data.files.length > 0 ? folders.data.files[0].id : null;
+
+    if (!folderId) {
       const folder = await drive.files.create({
         requestBody: {
           name: FOLDER_NAME,
@@ -69,17 +142,13 @@ export class FilesController {
         },
       });
       folderId = folder.data.id;
-    } else {
-      // Thư mục đã tồn tại, lấy id của nó
-      folderId = folders.data.files[0].id;
     }
 
-    // Tải file lên thư mục vừa tạo hoặc đã tồn tại
     const response = await drive.files.create({
       requestBody: {
         name: file.filename,
         mimeType: file.mimetype,
-        parents: [folderId], // Sử dụng id của thư mục làm cha
+        parents: [folderId],
       },
       media: {
         mimeType: file.mimetype,
@@ -89,7 +158,6 @@ export class FilesController {
 
     fs.unlinkSync(file.path);
 
-    // Lấy đường dẫn trên Google Drive bằng cách kết hợp id với URL cơ bản của Google Drive
     const fileUrl = `https://drive.google.com/uc?id=${response.data.id}`;
 
     return {
@@ -99,7 +167,6 @@ export class FilesController {
     }
   }
 
-  // @Public()
   @Get('download-file/:fileId')
   //  swagger
   @ApiBearerAuth('token')
@@ -112,7 +179,7 @@ export class FilesController {
       const response = await axios.get(url, { responseType: 'stream' });
 
       const contentType = response.headers['content-type'];
-      const fileExtension = contentType.split('/').pop(); // Lấy phần mở rộng từ kiểu MIME
+      const fileExtension = contentType.split('/').pop();
 
       if (fileExtension) {
         res.setHeader('Content-Type', contentType);

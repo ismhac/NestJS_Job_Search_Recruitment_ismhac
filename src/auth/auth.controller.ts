@@ -50,7 +50,6 @@ export class AuthController {
     @ApiOperation({ summary: 'API get user by refresh token' })
     handleRefreshToken(@Req() request: Request, @Res({ passthrough: true }) response: Response) { // req.user
         const refreshToken = request.headers.authorization;
-        console.log({ response });
         return this.authService.processNewToken(refreshToken, response);
     }
 
@@ -64,11 +63,9 @@ export class AuthController {
         user.permissions = temp.permissions;
 
         const getUser = await this.usersService.findUsersById(user._id);
-        // console.log(getUser);
         user.avatar = getUser.avatar;
         user.listCv = getUser.listCv;
         user.company = getUser.company as any;
-        // console.table({ avatar: user.avatar });
         return { user }
     }
 

@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import aqp from 'api-query-params';
 import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
@@ -39,6 +39,8 @@ export class UsersService {
     private mailerService: MailerService,
   ) { }
 
+  private readonly logger = new Logger(UsersService.name);
+
   getHashPassword = (password: string) => {
     const salt = genSaltSync(10);
     const hash = hashSync(password, salt);
@@ -63,7 +65,7 @@ export class UsersService {
       return { job, resumes: { url: resume.url, status: resume.status } }
     }));
 
-    console.log(jobs);
+    // this.logger.log(jobs);
     return { jobs }
   }
 
@@ -72,7 +74,7 @@ export class UsersService {
     const preferJobs = await this.userModel.findById(user._id)
       .select({ "preferJobs": 1 });
 
-    console.log(preferJobs);
+    this.logger.log(preferJobs?.preferJobs);
 
     const jobs = await this.JobModule.find({
       _id: {

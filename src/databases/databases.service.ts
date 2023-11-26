@@ -32,189 +32,62 @@ export class DatabasesService implements OnModuleInit {
     async initData() {
         const isInit = this.configService.get<string>('SHOULD_INIT');
         if (Boolean(isInit)) {
-
             const countUsers = await this.userModel.count({});
             const countPermissions = await this.permissionModel.count({});
             const countRoles = await this.roleModel.count({});
 
-            if (countRoles !== 0) {
-
-                const adminRole = await this.roleModel.findOne({ name: ROLE_ADMIN });
-                // check admin role
-                if (adminRole) {
-                    const allPermissions = await this.permissionModel.find({}).select("_id");
-                    // First, unset the 'permissions' field
-                    await adminRole.updateOne({ $unset: { permissions: 1 } });
-                    // Then, set the 'permissions' field to 'allPermissions'
-                    await adminRole.updateOne({ $set: { permissions: allPermissions } });
-                }
-
-                // check user role
-                const userRole = await this.roleModel.findOne({ name: ROLE_USER });
-                if (userRole) {
-                    const userPermissions = await this.permissionModel.find({
-                        apiPath: { $not: { $regex: "/api/v1/(roles|permissions)", $options: "i" } }
-                    }).select("_id");
-
-                    await userRole.updateOne({ $unset: { permissions: 1 } })
-                    await userRole.updateOne({
-                        permissions: userPermissions
-                    })
-                }
-
-                // check hr role
-                const hrRole = await this.roleModel.findOne({ name: ROLE_HR });
-                if (hrRole) {
-                    const hrPermissions = await this.permissionModel.find({
-                        apiPath: { $not: { $regex: "/api/v1/(roles|permissions)", $options: "i" } }
-                    }).select("_id");
-
-                    await hrRole.updateOne({ $unset: { permissions: 1 } })
-                    await hrRole.updateOne({
-                        permissions: hrPermissions
-                    })
-                }
-
-                // console.table({
-                //     "admin's permissions": adminRole.permissions.length,
-                //     "user's permissions": userRole.permissions.length,
-                //     "hr's permissions": hrRole.permissions.length
-                // });
-            }
+            const roles = [ROLE_ADMIN, ROLE_USER, ROLE_HR];
+            const emails = ["root@gmail.com", "admin@gmail.com"];
 
             if (countRoles === 0) {
-                await this.roleModel.insertMany([ // bulk create 
-                    {
-                        name: ROLE_ADMIN,
-                        description: "Admin has full permissions",
-                        isActive: true,
-                    },
-                    {
-                        name: ROLE_USER,
-                        description: "User/Candidate in system",
-                        isActive: true,
-                    },
-                    {
-                        name: ROLE_HR,
-                        description: "HR in system",
-                        isActive: true,
-                    }
-                ]);
+                // bulk create roles
+                await this.roleModel.insertMany(roles.map(role => ({
+                    name: role,
+                    description: `${role} in system`,
+                    isActive: true,
+                })));
+            }
 
-                const adminRole = await this.roleModel.findOne({ name: ROLE_ADMIN });
-                // check admin role
-                if (adminRole) {
-                    const allPermissions = await this.permissionModel.find({}).select("_id");
-                    // First, unset the 'permissions' field
-                    await adminRole.updateOne({ $unset: { permissions: 1 } });
-                    // Then, set the 'permissions' field to 'allPermissions'
-                    await adminRole.updateOne({ $set: { permissions: allPermissions } });
-                }
+            const allPermissions = await this.permissionModel.find({}).select("_id");
 
-
-                // check user role
-                const userRole = await this.roleModel.findOne({ name: ROLE_USER });
-                if (userRole) {
-                    const userPermissions = await this.permissionModel.find({
+            for (const role of roles) {
+                const roleDoc = await this.roleModel.findOne({ name: role });
+                const permissions = role === ROLE_ADMIN ? allPermissions :
+                    await this.permissionModel.find({
                         apiPath: { $not: { $regex: "/api/v1/(roles|permissions)", $options: "i" } }
                     }).select("_id");
 
-                    await userRole.updateOne({ $unset: { permissions: 1 } })
-                    await userRole.updateOne({
-                        permissions: userPermissions
-                    })
+                if (roleDoc) {
+                    await roleDoc.updateOne({ $set: { permissions } });
                 }
-
-                // check hr role
-                const hrRole = await this.roleModel.findOne({ name: ROLE_HR });
-                if (hrRole) {
-                    const hrPermissions = await this.permissionModel.find({
-                        apiPath: { $not: { $regex: "/api/v1/(roles|permissions)", $options: "i" } }
-                    }).select("_id");
-
-                    await hrRole.updateOne({ $unset: { permissions: 1 } })
-                    await hrRole.updateOne({
-                        permissions: hrPermissions
-                    })
-                }
-
-                // console.table({
-                //     "admin's permissions": adminRole.permissions.length,
-                //     "user's permissions": userRole.permissions.length,
-                //     "hr's permissions": hrRole.permissions.length
-                // });
             }
 
-            // create user
-            if (!(await this.userModel.findOne({ email: "root@gmail.com" }) && await this.userModel.findOne({ email: "admin@gmail.com" }))) {
+            for (const email of emails) {
+                const user = await this.userModel.findOne({ email });
                 const adminRole = await this.roleModel.findOne({ name: ROLE_ADMIN });
-                const root = await this.userModel.findOne({ email: "root@gmail.com" });
-                const admin = await this.userModel.findOne({ email: "admin@gmail.com" });
 
-                if (!root) {
-                    await this.userModel.create(
-                        {
-                            name: "root",
-                            email: "root@gmail.com",
-                            password: this.userService.getHashPassword(this.configService.get<string>('INIT_PASSWORD_ADMIN')),
-                            age: 20,
-                            gender: "MALE",
-                            address: "VietNam",
-                            role: adminRole?._id,
-                        }
-                    )
-                } else if (adminRole && root.role.toString() !== adminRole._id.toString()) {
-                    await root.updateOne({
-                        role: adminRole._id
-                    })
-                }
-
-                if (!admin) {
-                    await this.userModel.create(
-                        {
-                            name: "admin",
-                            email: "admin@gmail.com",
-                            password: this.userService.getHashPassword(this.configService.get<string>('INIT_PASSWORD_ADMIN')),
-                            age: 20,
-                            gender: "MALE",
-                            address: "VietNam",
-                            role: adminRole?._id,
-                        }
-                    )
-                } else if (adminRole && admin.role.toString() !== adminRole._id.toString()) {
-                    await admin.updateOne({
-                        role: adminRole._id
-                    })
+                if (!user && adminRole) {
+                    await this.userModel.create({
+                        name: email.split('@')[0],
+                        email,
+                        password: this.userService.getHashPassword(this.configService.get<string>('INIT_PASSWORD_ADMIN')),
+                        age: 20,
+                        gender: "MALE",
+                        address: "VietNam",
+                        role: adminRole._id,
+                    });
+                } else if (user && adminRole && user.role.toString() !== adminRole._id.toString()) {
+                    await user.updateOne({ role: adminRole._id });
                 }
             }
 
-            if (await this.userModel.findOne({ email: "root@gmail.com" }) || await this.userModel.findOne({ email: "admin@gmail.com" })) {
-                const adminRole = await this.roleModel.findOne({ name: ROLE_ADMIN });
-                const root = await this.userModel.findOne({ email: "root@gmail.com" });
-                const admin = await this.userModel.findOne({ email: "admin@gmail.com" });
-
-                if (adminRole && root.role.toString() !== adminRole._id.toString()) {
-                    await root.updateOne({
-                        role: adminRole._id
-                    })
-                }
-
-                if (adminRole && admin.role.toString() !== adminRole._id.toString()) {
-                    await admin.updateOne({
-                        role: adminRole._id
-                    })
-                }
-            }
-            // check isCreate sample data
             if (countUsers > 0 && countPermissions > 0 && countRoles > 0) {
-                console.table({
-                    "users": countUsers,
-                    "roles": countRoles,
-                    "permissions": countPermissions,
-                    "admin's permissions": (await this.roleModel.findOne({ name: ROLE_ADMIN })).permissions.length,
-                    "user's permissions": (await this.roleModel.findOne({ name: ROLE_USER })).permissions.length,
-                    "hr's permissions": (await this.roleModel.findOne({ name: ROLE_HR })).permissions.length    
-                });
+                this.logger.log(`users: ${countUsers}`);
+                this.logger.log(`roles: ${countRoles}`);
+                this.logger.log(`permissions: ${countPermissions}`);
+                this.logger.log(`admin's permissions: ${(await this.roleModel.findOne({ name: ROLE_ADMIN })).permissions.length}`);
+                this.logger.log(`user's permissions: ${(await this.roleModel.findOne({ name: ROLE_USER })).permissions.length}`);
+                this.logger.log(`hr's permissions: ${(await this.roleModel.findOne({ name: ROLE_HR })).permissions.length}`);
             }
         }
     }

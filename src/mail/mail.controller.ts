@@ -25,12 +25,6 @@ export class MailController {
 
   ) { }
 
-
-  // @Cron(CronExpression.EVERY_30_SECONDS)
-  // testCron() {
-  //   console.log("==> call me");
-  // }
-
   @Get()
   @Public()
   @ResponseMessage("Test email")

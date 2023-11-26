@@ -6,7 +6,6 @@ import { User, UserDocument } from 'src/users/schemas/user.schema';
 import { Resume, ResumeDocument } from 'src/resumes/schemas/resume.schema';
 import { UserProfile, UserProfileDocument } from './schemas/user_profile.schema';
 import { IUser } from 'src/users/users.interface';
-import mongoose from 'mongoose';
 
 
 @Injectable()
@@ -26,16 +25,24 @@ export class UserProfilesService {
 
   async create(createUserProfileDto: CreateUserProfileDto, user: IUser, resumeId: String) {
     const { skills, level, isPublic } = createUserProfileDto;
-    const existResume = await this.ResumeModule.findOne({ _id: resumeId });
-    const existingUser = await this.userModel.findOne({ email: user.email });
+
+    // Kiểm tra đầu vào
+    if (!skills || !level || isPublic === undefined) {
+      throw new BadRequestException('Missing input fields');
+    }
+
+    const [existResume, existingUser, existUserProfile] = await Promise.all([
+      this.ResumeModule.findOne({ _id: resumeId }),
+      this.userModel.findOne({ email: user.email }),
+      this.UserProfilesModule.findOne({ userInfo: user.email })
+    ]);
+
     if (!existResume) {
       throw new BadRequestException(`Resume with id: ${resumeId} is not exist`);
     }
     if (!existingUser) {
       throw new BadRequestException(`User with email: ${user.email} is not exist`);
     }
-
-    const existUserProfile = await this.UserProfilesModule.findOne({ userInfo: user.email });
     if (existUserProfile) {
       throw new BadRequestException(`User profile with email: ${user.email} is already exist`);
     }
@@ -62,20 +69,4 @@ export class UserProfilesService {
     })
     return newUserProfile;
   }
-
-  // findAll() {
-  //   return `This action returns all userProfiles`;
-  // }
-
-  // findOne(id: number) {
-  //   return `This action returns a #${id} userProfile`;
-  // }
-
-  // update(id: number, updateUserProfileDto: UpdateUserProfileDto) {
-  //   return `This action updates a #${id} userProfile`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} userProfile`;
-  // }
 }

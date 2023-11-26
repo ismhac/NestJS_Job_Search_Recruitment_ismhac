@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -7,14 +7,16 @@ import { Job, JobDocument } from './schemas/job.schema';
 import { IUser } from 'src/users/users.interface';
 import mongoose from 'mongoose';
 import aqp from 'api-query-params';
+import { DatabasesService } from 'src/databases/databases.service';
 
 @Injectable()
 export class JobsService {
   constructor(
     @InjectModel(Job.name)
-    private jobModel: SoftDeleteModel<JobDocument>
+    private jobModel: SoftDeleteModel<JobDocument>,
   ) { }
 
+  private readonly logger = new Logger(DatabasesService.name);
 
   async create(createJobDto: CreateJobDto, user: IUser) {
     const {
@@ -74,7 +76,7 @@ export class JobsService {
     delete filter.pageSize;
 
     this.convertStringToRegExp(filter);
-    console.log(filter);
+    // this.logger.log(filter);
     let offset = (+currentPage - 1) * (+limit);
     let defaultLimit = +limit ? +limit : 10;
 
