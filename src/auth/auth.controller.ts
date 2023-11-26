@@ -41,11 +41,11 @@ export class AuthController {
     //     return this.authService.processNewToken(refreshToken, response);
     // }
 
-    // @Public()
+    @Public()
     @Get('/refresh')
     @ResponseMessage("Get user by refresh token")
     // swagger
-    @ApiBearerAuth('token')
+    // @ApiBearerAuth('token')
     @ApiOperation({ summary: 'API get user by refresh token' })
     handleRefreshToken(@Req() request: Request, @Res({ passthrough: true }) response: Response) { // req.user
         const refreshToken = request.headers.authorization;

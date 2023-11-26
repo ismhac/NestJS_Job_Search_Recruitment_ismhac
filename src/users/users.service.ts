@@ -51,7 +51,11 @@ export class UsersService {
 
 
   async getAllApplyJob(user: IUser) {
-    const resumes = await this.ResumeModule.find({ userId: user._id }).select("+_id +jobId +status");
+    const resumes = await this.ResumeModule.find({ userId: user._id }).select({
+      "_id": 1,
+      "jobId": 1,
+      "status": 1
+    })
     const jobs = await Promise.all(resumes.map(async (resume) => {
       let job = await this.JobModule.findById(resume.jobId).select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description");
       return { job, status: resume.status }
@@ -63,13 +67,14 @@ export class UsersService {
 
 
   async getAllPreferJob(user: IUser) {
-    const preferJobs = await this.userModel.findById(user._id).select("+preferJobs");
+    const preferJobs = await this.userModel.findById(user._id)
+      .select({ "preferJobs": 1 });
 
     console.log(preferJobs);
 
     const jobs = await this.JobModule.find({
       _id: {
-        $in: preferJobs
+        $in: preferJobs?.preferJobs
       },
       isActive: true
     }).select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description")

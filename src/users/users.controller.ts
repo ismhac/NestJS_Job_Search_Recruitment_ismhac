@@ -118,7 +118,7 @@ export class UsersController {
 
   // custom api
   // @Public()
-  @Patch('/like_jobs/:jobId')
+  @Patch('/jobs/like_jobs/:jobId')
   @ResponseMessage('Add like job success')
   // swagger
   @ApiBearerAuth('token')
@@ -131,7 +131,7 @@ export class UsersController {
   }
 
   // @Public()
-  @Patch('/unlike_jobs/:jobId')
+  @Patch('/jobs/unlike_jobs/:jobId')
   @ResponseMessage('Add unlike job success')
   // swagger
   @ApiBearerAuth('token')
@@ -154,7 +154,7 @@ export class UsersController {
     return result;
   }
 
-  @Get("/prefer-jobs")
+  @Get("/jobs/prefer-jobs")
   @ResponseMessage("Get all prefer jobs of user success")
   // swagger
   @ApiBearerAuth('token')
@@ -164,7 +164,7 @@ export class UsersController {
     return result;
   }
 
-  @Get("/apply-jobs")
+  @Get("/jobs/apply-jobs")
   @ResponseMessage("Get all apply jobs of user success")
   // swagger
   @ApiBearerAuth('token')

@@ -45,7 +45,7 @@ export class AuthService {
                 const refresh_token = this.createRefreshToken(payload);
 
                 // update user with refresh token
-                response.clearCookie("refresh_token");
+                // response.clearCookie("refresh_token");
                 await this.usersService.updateUserToken(refresh_token, _id.toString())
 
                 // fetch user's role
@@ -145,7 +145,10 @@ export class AuthService {
         // })
 
         return {
-            access_token: this.jwtService.sign(payload),
+            access_token: this.jwtService.sign(payload, {
+                secret: this.configService.get<string>("JWT_ACCESS_TOKEN_SECRET"),
+                expiresIn: ms(this.configService.get<string>('JWT_ACCESS_EXPIRE')) / 1000,
+            }),
             refresh_token: refresh_token,
             // user: {
             //     _id,
