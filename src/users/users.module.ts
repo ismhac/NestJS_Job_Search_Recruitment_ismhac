@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { Resume, ResumeSchema } from 'src/resumes/schemas/resume.schema';
+import { UserProfile, UserProfileSchema } from 'src/user_profiles/schemas/user_profile.schema';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { Resume, ResumeSchema } from 'src/resumes/schemas/resume.schema';
       { name: Role.name, schema: RoleSchema },
       { name: Company.name, schema: CompanySchema },
       { name: Job.name, schema: JobSchema },
-      { name: Resume.name, schema: ResumeSchema }
+      { name: Resume.name, schema: ResumeSchema },
     ]),
 
     MailerModule.forRootAsync({
