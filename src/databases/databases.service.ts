@@ -49,7 +49,6 @@ export class DatabasesService implements OnModuleInit {
                             permissions: allPermissions
                         })
                     }
-
                 }
 
                 // check user role

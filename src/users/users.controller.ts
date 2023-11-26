@@ -87,8 +87,8 @@ export class UsersController {
   //
   @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API get a user by id' })
-  async findOne(@Param('id') id: string) {
-    return await this.usersService.findOne(id);
+  async findOne(@User() user: IUser) {
+    return await this.usersService.findOne(user);
   }
 
 
@@ -118,7 +118,7 @@ export class UsersController {
 
   // custom api
   // @Public()
-  @Patch(':userId/like_jobs/:jobId')
+  @Patch('/like_jobs/:jobId')
   @ResponseMessage('Add like job success')
   // swagger
   @ApiBearerAuth('token')
@@ -131,7 +131,7 @@ export class UsersController {
   }
 
   // @Public()
-  @Patch(':userId/unlike_jobs/:jobId')
+  @Patch('/unlike_jobs/:jobId')
   @ResponseMessage('Add unlike job success')
   // swagger
   @ApiBearerAuth('token')
@@ -154,7 +154,7 @@ export class UsersController {
     return result;
   }
 
-  @Get(":id/prefer-jobs")
+  @Get("/prefer-jobs")
   @ResponseMessage("Get all prefer jobs of user success")
   // swagger
   @ApiBearerAuth('token')
@@ -164,7 +164,7 @@ export class UsersController {
     return result;
   }
 
-  @Get(":id/apply-jobs")
+  @Get("/apply-jobs")
   @ResponseMessage("Get all apply jobs of user success")
   // swagger
   @ApiBearerAuth('token')

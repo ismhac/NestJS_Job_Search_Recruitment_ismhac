@@ -338,13 +338,13 @@ export class UsersService {
     }
   }
 
-  async findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+  async findOne(user: IUser) {
+    if (!mongoose.Types.ObjectId.isValid(user._id)) {
       return 'not found user';
     }
 
     return await this.userModel.findOne({
-      _id: id
+      _id: user._id
     })
       .select('-password') // exclude
       .populate({ path: "role", select: { name: 1, _id: 1, } })
