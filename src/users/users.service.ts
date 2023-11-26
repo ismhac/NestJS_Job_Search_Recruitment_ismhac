@@ -54,11 +54,13 @@ export class UsersService {
     const resumes = await this.ResumeModule.find({ userId: user._id }).select({
       "_id": 1,
       "jobId": 1,
-      "status": 1
+      "status": 1,
+      "url": 1,
     })
     const jobs = await Promise.all(resumes.map(async (resume) => {
-      let job = await this.JobModule.findById(resume.jobId).select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description");
-      return { job, status: resume.status }
+      let job = await this.JobModule.findById(resume.jobId)
+        .select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description");
+      return { job, resumes: { url: resume.url, status: resume.status } }
     }));
 
     console.log(jobs);

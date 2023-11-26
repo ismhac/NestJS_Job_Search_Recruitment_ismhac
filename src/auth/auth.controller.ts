@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post, Req, Res, UseGuards } from "@nestjs/common";
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiExcludeController, ApiExcludeEndpoint, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 import { Request, Response } from "express";
 import { Public, ResponseMessage, User } from "src/decorator/customize";
@@ -46,9 +46,11 @@ export class AuthController {
     @ResponseMessage("Get user by refresh token")
     // swagger
     // @ApiBearerAuth('token')
+    @ApiExcludeEndpoint() // hide this endpoint in swagger
     @ApiOperation({ summary: 'API get user by refresh token' })
     handleRefreshToken(@Req() request: Request, @Res({ passthrough: true }) response: Response) { // req.user
         const refreshToken = request.headers.authorization;
+        console.log({ response });
         return this.authService.processNewToken(refreshToken, response);
     }
 
