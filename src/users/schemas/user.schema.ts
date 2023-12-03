@@ -50,6 +50,12 @@ export class User {
     @Prop()
     refreshToken: string;
 
+    @Prop()
+    resetPasswordToken: string;
+
+    @Prop()
+    resetPasswordExpires: Date;
+
     @Prop({ type: Object })
     createdBy: {
         _id: mongoose.Schema.Types.ObjectId;

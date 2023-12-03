@@ -15,6 +15,8 @@ import { Company, CompanyDocument } from 'src/companies/schemas/company.schema';
 import { Job, JobDocument } from 'src/jobs/schemas/job.schema';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Resume, ResumeDocument } from 'src/resumes/schemas/resume.schema';
+import * as crypto from 'crypto';
+
 
 
 @Injectable()
@@ -87,25 +89,31 @@ export class UsersService {
   }
 
 
-  requestPasswordReset = async (email) => {
-
+  async requestPasswordReset(email) {
     const existingUser = await this.userModel.findOne({ email });
 
-    if (!existingUser) throw new Error(`Email ${email} does not exist`);
+    if (!existingUser) throw new BadRequestException(`Email ${email} does not exist`);
 
-    const resetPasswordLink = `hhhh`;
+    const resetToken = crypto.randomBytes(20).toString('hex');
+    existingUser.resetPasswordToken = resetToken;
+    existingUser.resetPasswordExpires = new Date(Date.now() + 60 * 10 * 1000); // 10 minutes
+    await existingUser.save();
+
+    const resetPasswordLink = `http://your-app.com/reset-password/${resetToken}`;
+
     await this.mailerService.sendMail({
       to: email,
-      from: '"Support Team" <support@itjobs.com>', // override default from
-      subject: 'Welcome to Nice App! Confirm your Email',
+      from: '"Support Team" <support@itjobs.com>',
+      subject: 'Reset your password',
       template: 'resetPass',
       context: {
         name: existingUser.name,
         link: resetPasswordLink,
       }
-    })
-    return "OK";
-  };
+    });
+
+    return resetPasswordLink;
+  }
 
   findUserByToken = async (refreshToken: string) => {
     return await this.userModel.findOne(

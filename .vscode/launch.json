@@ -7,7 +7,7 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Nest Debug",
+            "name": "Nest Debug",   
             "runtimeExecutable": "npm",
             "runtimeArgs": [
                 "run",

@@ -129,8 +129,6 @@ export class AuthService {
             email,
             role,
             avatar,
-            // listCv
-            // permissions
         }
 
         const refresh_token = this.createRefreshToken(payload);
@@ -150,15 +148,6 @@ export class AuthService {
                 expiresIn: ms(this.configService.get<string>('JWT_ACCESS_EXPIRE')) / 1000,
             }),
             refresh_token: refresh_token,
-            // user: {
-            //     _id,
-            //     name,
-            //     email,
-            //     role,
-            //     avatar,
-            //     listCv,
-            //     // permissions
-            // }
         };
     }
 }

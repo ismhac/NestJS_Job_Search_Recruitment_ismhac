@@ -3,27 +3,15 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CAPTAIN HAC</title>
+    <title>reset password</title>
 </head>
 
 <body>
-    <div class="header">
-        <div style="font-size: 24px; font-weight: bold;">IT JOBS</div>
-    </div>
-    <div class="content">
-        <div>Hi {{name}},</div>
-        <div>Reset your password: {{link}}</div>
-    </div>
-    {{!-- <div style="margin: 15px 0; border-top: 1px dashed rgba(5, 5, 5, 0.06);"></div> --}}
-    <div>
-        <a href="https://github.com/ismhac/" target="_blank" class="link-button">See more jobs at IT JOBS</a>
-    </div>
-    <div class="footer">
-        <div>Cheers,</div>
-        <div>Captain Hac.</div>
-    </div>
+    <p>Hi {{name}},</p>
+    <p>We have received a request to reset your password.</p>
+    <p>If you did not request a password reset, please ignore this email and your password will not be changed.</p>
+    <a href={{link}}>Reset Password</a>
 </body>
 
 </html>
