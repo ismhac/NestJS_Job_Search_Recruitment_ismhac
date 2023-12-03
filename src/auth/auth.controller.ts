@@ -66,10 +66,13 @@ export class AuthController {
         user.permissions = temp.permissions;
 
         const getUser = await this.usersService.findUsersById(user._id);
-        const getCompany = getUser.company as any;
-        const companyName = (await this.companyService.findOne(getCompany?._id))?.name;
+        let getCompany = getUser.company as any;
+        let companyName = "";
+        if (getCompany) {
+            companyName = (await this.companyService.findOne(getCompany?._id))?.name;
+            getCompany.name = companyName;
+        }
 
-        getCompany.name = companyName;
         user.avatar = getUser.avatar;
         user.listCv = getUser.listCv;
         user.company = getCompany;
