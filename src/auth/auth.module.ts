@@ -9,11 +9,13 @@ import { JwtStrategy } from './passport/jwt.strategy';
 import ms from 'ms';
 import { AuthController } from './auth.controller';
 import { RolesModule } from 'src/roles/roles.module';
+import { CompaniesModule } from 'src/companies/companies.module';
 @Module({
   imports: [
     UsersModule,
     RolesModule,
     PassportModule,
+    CompaniesModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({

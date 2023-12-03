@@ -9,6 +9,8 @@ import { IUser } from "src/users/users.interface";
 import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./guard/local-auth.guard";
 import { UsersService } from "src/users/users.service";
+import { CompaniesService } from "src/companies/companies.service";
+import { logger } from "handlebars";
 
 
 @ApiTags("authentications")
@@ -18,6 +20,7 @@ export class AuthController {
         private authService: AuthService,
         private roleService: RolesService,
         private usersService: UsersService,
+        private companyService: CompaniesService
         // private
     ) { }
 
@@ -63,9 +66,13 @@ export class AuthController {
         user.permissions = temp.permissions;
 
         const getUser = await this.usersService.findUsersById(user._id);
+        const getCompany = getUser.company as any;
+        const companyName = (await this.companyService.findOne(getCompany?._id))?.name;
+
+        getCompany.name = companyName;
         user.avatar = getUser.avatar;
         user.listCv = getUser.listCv;
-        user.company = getUser.company as any;
+        user.company = getCompany;
         return { user }
     }
 
