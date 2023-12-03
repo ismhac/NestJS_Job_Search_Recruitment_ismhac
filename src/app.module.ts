@@ -18,8 +18,6 @@ import { ResumesModule } from './resumes/resumes.module';
 import { RolesModule } from './roles/roles.module';
 import { SubscribersModule } from './subscribers/subscribers.module';
 import { UsersModule } from './users/users.module';
-import { DatabasesService } from './databases/databases.service';
-import { DatabasesController } from './databases/databases.controller';
 import { UserProfilesModule } from './user_profiles/user_profiles.module';
 
 @Module({
