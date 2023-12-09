@@ -210,4 +210,7 @@ export class JobsController {
     @User() user: IUser) {
     return this.jobsService.remove(id, user);
   }
+
+  // api get list user apply jobs
+  
 }

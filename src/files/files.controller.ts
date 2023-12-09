@@ -102,6 +102,7 @@ export class FilesController {
       if (fileExtension) {
         res.setHeader('Content-Type', contentType);
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+        res.setHeader('X-Suggested-Filename', filename);
       } else {
         throw new Error('The file type cannot be identified !');
       }

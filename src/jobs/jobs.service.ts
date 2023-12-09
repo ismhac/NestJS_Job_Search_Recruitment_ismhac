@@ -8,12 +8,16 @@ import { IUser } from 'src/users/users.interface';
 import mongoose from 'mongoose';
 import aqp from 'api-query-params';
 import { DatabasesService } from 'src/databases/databases.service';
+import { Resume, ResumeDocument } from 'src/resumes/schemas/resume.schema';
 
 @Injectable()
 export class JobsService {
   constructor(
     @InjectModel(Job.name)
     private jobModel: SoftDeleteModel<JobDocument>,
+
+    @InjectModel(Resume.name)
+    private resumeModel: SoftDeleteModel<ResumeDocument>,
   ) { }
 
   private readonly logger = new Logger(DatabasesService.name);
@@ -83,12 +87,20 @@ export class JobsService {
     const totalItems = (await this.jobModel.find(filter)).length;
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
-    const result = await this.jobModel.find(filter)
+    const results = await this.jobModel.find(filter)
       .skip(offset)
       .limit(defaultLimit)
       .sort(sort as any)
       .populate(population)
       .exec();
+
+
+
+    results.map(async (result) => {
+      const resumes = await this.resumeModel.find({ jobId: result._id }).count();
+      console.log(resumes);
+
+    })
 
     return {
       meta: {
@@ -97,7 +109,7 @@ export class JobsService {
         pages: totalPages,
         total: totalItems
       },
-      result
+      results
     }
   }
 

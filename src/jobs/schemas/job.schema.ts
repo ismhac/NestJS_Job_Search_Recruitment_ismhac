@@ -26,6 +26,8 @@ export class Job {
         email: string;
     }[];
 
+    
+
     @Prop()
     location: string;
 
