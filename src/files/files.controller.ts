@@ -102,13 +102,12 @@ export class FilesController {
       if (fileExtension) {
         res.setHeader('Content-Type', contentType);
         res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
-        res.setHeader('X-Suggested-Filename', filename);
       } else {
         throw new Error('The file type cannot be identified !');
       }
 
       const result = await response.data.pipe(res);
-      return result;
+      return { filename: filename, file: result };
     } catch (error) {
       res.status(500).send({ message: error.message, stack: error.stack });
     }
