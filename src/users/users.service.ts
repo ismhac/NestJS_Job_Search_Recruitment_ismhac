@@ -140,7 +140,7 @@ export class UsersService {
     existingUser.resetPasswordExpires = new Date(Date.now() + 60 * 10 * 1000); // 10 minutes
     await existingUser.save();
 
-    const resetPasswordLink = `http://your-app.com/reset-password/${resetToken}`;
+    const resetPasswordLink = `https://job-app-ivory.vercel.app/forget-password-confirmation/${resetToken}`;
 
     await this.mailerService.sendMail({
       to: email,
