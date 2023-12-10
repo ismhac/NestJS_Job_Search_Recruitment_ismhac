@@ -15,8 +15,12 @@ export class Resume {
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
     userId: mongoose.Schema.Types.ObjectId;
 
-    @Prop()
-    url: string;
+    @Prop({ type: Object })
+    // url: string;
+    file: {
+        url: string,
+        name: string
+    }
 
     @Prop()
     status: string;

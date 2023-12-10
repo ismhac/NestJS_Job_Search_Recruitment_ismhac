@@ -31,14 +31,14 @@ export class ResumesService {
   }
 
   async create(createUserCvDto: CreateUserCvDto, user: IUser) {
-    const { url, companyId, jobId } = createUserCvDto;
+    const { file, companyId, jobId } = createUserCvDto;
     const { email, _id } = user;
 
     const existingResume = await this.resumeModel.findOne({ jobId, userId: _id });
     if (existingResume) throw new BadRequestException(`Resume of user with _id ${_id} for job ${jobId} is already exist`)
 
     const newCv = await this.resumeModel.create({
-      url, companyId, jobId, email, userId: _id,
+      file, companyId, jobId, email, userId: _id,
       status: "PENDING",
       createdBy: { _id, email },
       history: [

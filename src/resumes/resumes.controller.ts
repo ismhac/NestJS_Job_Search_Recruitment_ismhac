@@ -24,38 +24,6 @@ export class ResumesController {
   // swagger
   @ApiBearerAuth('token')
   @ApiOperation({ summary: 'API create a new resume' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      required: [],
-      properties: {
-        email: {
-          type: 'string',
-          example: 'useremail@gmail.com'
-        },
-        userId: {
-          type: 'string',
-          example: '60f6f8e2a0a3a11b2c1b2f8d'
-        },
-        url: {
-          type: 'string',
-          example: 'https://www.topcv.vn/xem-cv/5f6f8e2a0a3a11b2c1b2f8d'
-        },
-        status: {
-          type: 'string',
-          example: 'PENDING'
-        },
-        companyId: {
-          type: 'string',
-          example: '60f6f8e2a0a3a11b2c1b2f8d'
-        },
-        jobId: {
-          type: 'string',
-          example: '60f6f8e2a0a3a11b2c1b2f8d'
-        }
-      }
-    }
-  })
   create(@Body() createUserCv: CreateUserCvDto, @User() user: IUser) {
     return this.resumesService.create(createUserCv, user);
   }

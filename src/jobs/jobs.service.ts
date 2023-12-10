@@ -94,14 +94,6 @@ export class JobsService {
       .populate(population)
       .exec();
 
-
-
-    results.map(async (result) => {
-      const resumes = await this.resumeModel.find({ jobId: result._id }).count();
-      console.log(resumes);
-
-    })
-
     return {
       meta: {
         current: currentPage,

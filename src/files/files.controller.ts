@@ -82,8 +82,13 @@ export class FilesController {
     fs.unlinkSync(file.path);
 
     const url = `https://drive.google.com/uc?id=${response.data.id}`;
+    const name = file.filename;
 
-    return url;
+    const fileResponse: Object = {};
+    fileResponse['url'] = url;
+    fileResponse['name'] = name;
+
+    return fileResponse;
   }
 
   @Get('download-file/:url')

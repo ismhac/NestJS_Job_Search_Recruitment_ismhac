@@ -64,7 +64,7 @@ export class UsersService {
     const jobs = await Promise.all(resumes.map(async (resume) => {
       let job = await this.JobModule.findById(resume.jobId)
         .select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description");
-      return { job, resumes: { url: resume.url, status: resume.status } }
+      return { job, resumes: { url: resume.file.url, status: resume.status } }
     }));
 
     // this.logger.log(jobs);
@@ -112,7 +112,10 @@ export class UsersService {
       }
     });
 
-    return resetPasswordLink;
+    return {
+      email: existingUser.email,
+      resetPasswordLink
+    }
   }
 
   findUserByToken = async (refreshToken: string) => {

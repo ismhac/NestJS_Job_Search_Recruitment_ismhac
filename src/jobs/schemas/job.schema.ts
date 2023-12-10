@@ -28,6 +28,8 @@ export class Job {
 
     
 
+
+
     @Prop()
     location: string;
 

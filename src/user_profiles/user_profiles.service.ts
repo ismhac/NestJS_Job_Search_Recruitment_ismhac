@@ -50,7 +50,7 @@ export class UserProfilesService {
     const newUserProfile = this.UserProfilesModule.create({
       resumeInfo: {
         _id: resumeId,
-        url: existResume.url
+        url: existResume.file.url
       },
       userInfo: {
         _id: existingUser._id,
