@@ -8,7 +8,7 @@ import { ROLE_HR, ROLE_USER } from 'src/databases/sample';
 import { User as UserDecorator } from 'src/decorator/customize';
 import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
 import { CreateUserDto, RegisterRecruiterDto, RegisterUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto, UpdateUserPasswordDto } from './dto/update-user.dto';
 import { UserDocument, User as UserModel } from './schemas/user.schema';
 import { IUser } from './users.interface';
 import { Company, CompanyDocument } from 'src/companies/schemas/company.schema';
@@ -16,8 +16,6 @@ import { Job, JobDocument } from 'src/jobs/schemas/job.schema';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Resume, ResumeDocument } from 'src/resumes/schemas/resume.schema';
 import * as crypto from 'crypto';
-import { jobs } from 'googleapis/build/src/apis/jobs';
-
 
 
 @Injectable()
@@ -44,6 +42,35 @@ export class UsersService {
 
   private readonly logger = new Logger(UsersService.name);
 
+  async changePassword(resetPasswordToken: string, updateUserPasswordDto: UpdateUserPasswordDto) {
+    const userRequestChangePass = await this.userModel.findOne({ resetPasswordToken: resetPasswordToken });
+
+    // Check if resetPasswordToken is valid
+    if (!userRequestChangePass) {
+      throw new BadRequestException(`Invalid token`);
+    }
+
+    // Check if resetPasswordToken has expired
+    if (Date.now() > userRequestChangePass.resetPasswordExpires.getTime()) {
+      throw new BadRequestException(`token has expired`);
+    }
+
+    const { inputNewPassWord, confirmNewPassWord } = updateUserPasswordDto;
+    if (inputNewPassWord !== confirmNewPassWord) {
+      throw new BadRequestException(`New password and confirm password are not matched`);
+    }
+
+    const hashPassword = this.getHashPassword(inputNewPassWord);
+    const userUpdatePass = await this.userModel.updateOne(
+      { _id: userRequestChangePass._id },
+      {
+        password: hashPassword,
+      }
+    );
+
+    return userUpdatePass;
+  }
+
   getHashPassword = (password: string) => {
     const salt = genSaltSync(10);
     const hash = hashSync(password, salt);
@@ -53,7 +80,6 @@ export class UsersService {
   async findUsersById(id: String) {
     return await this.userModel.findById(id);
   }
-
 
   async getAllApplyJob(user: IUser) {
     const resumes = await this.ResumeModule.find(

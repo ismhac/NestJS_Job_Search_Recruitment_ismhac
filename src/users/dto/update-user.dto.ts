@@ -53,3 +53,14 @@ export class UpdateUserDto extends PartialType(OmitType(CreateUserDto, ['passwor
     @IsOptional()
     listCv: ResumeInfo[]
 }
+
+
+export class UpdateUserPasswordDto {
+    @ApiProperty()
+    @IsNotEmpty()
+    inputNewPassWord: string;
+
+    @ApiProperty()
+    @IsNotEmpty()
+    confirmNewPassWord: string;
+}

@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestj
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto, UpdateUserPasswordDto } from './dto/update-user.dto';
 import { IUser } from './users.interface';
 import { UsersService } from './users.service';
 
@@ -172,6 +172,16 @@ export class UsersController {
   async getAllApplyJob(@User() user: IUser) {
     let result = await this.usersService.getAllApplyJob(user);
     return result;
+  }
+
+
+  @Public()
+  @Patch("/change-password/:resetPasswordToken")
+  @ResponseMessage("Change password success")
+  @ApiOperation({ summary: 'API for change password' })
+  changePassword(@Param('resetPasswordToken') resetPasswordToken: string,
+    @Body() updateUserPasswordDto: UpdateUserPasswordDto) {
+    return this.usersService.changePassword(resetPasswordToken, updateUserPasswordDto);
   }
 }
 
