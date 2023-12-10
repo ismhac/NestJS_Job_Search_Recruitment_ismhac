@@ -16,6 +16,7 @@ import { Job, JobDocument } from 'src/jobs/schemas/job.schema';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Resume, ResumeDocument } from 'src/resumes/schemas/resume.schema';
 import * as crypto from 'crypto';
+import { jobs } from 'googleapis/build/src/apis/jobs';
 
 
 
@@ -55,20 +56,33 @@ export class UsersService {
 
 
   async getAllApplyJob(user: IUser) {
-    const resumes = await this.ResumeModule.find({ userId: user._id }).select({
+    const resumes = await this.ResumeModule.find(
+      {
+        $and: [
+          { userId: user._id },
+        ]
+      }
+
+    ).select({
       "_id": 1,
       "jobId": 1,
       "status": 1,
-      "url": 1,
-    })
-    const jobs = await Promise.all(resumes.map(async (resume) => {
-      let job = await this.JobModule.findById(resume.jobId)
-        .select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description");
-      return { job, resumes: { url: resume.file.url, status: resume.status } }
+      "file": 1,
+    }).populate({
+      path: "jobId",
+      select: { "name": 1, "company": 1, "location": 1, "salary": 1, "quantity": 1, "level": 1, "startDate": 1, "endDate": 1, "isActive": 1 }
+    });
+
+    const customizedResumes = resumes.map(resume => ({
+      resumeInfo: {
+        _id: resume._id,
+        file: resume.file,
+        status: resume.status,
+      },
+      jobInfo: resume.jobId
     }));
 
-    // this.logger.log(jobs);
-    return { jobs }
+    return customizedResumes;
   }
 
 
@@ -84,6 +98,7 @@ export class UsersService {
       },
       isActive: true
     }).select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description")
+
 
     return { jobs }
   }
