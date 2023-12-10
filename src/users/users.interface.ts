@@ -1,3 +1,5 @@
+import { ResumeInfo } from "./dto/update-user.dto";
+
 export interface IUser {
     _id: string;
     name: string;
@@ -11,12 +13,7 @@ export interface IUser {
         name: string;
     };
     avatar: string;
-    listCv: {
-        file: {
-            url: string,
-            name: string
-        }
-    }[];
+    listCv: ResumeInfo[];
     permissions?: {
         _id: string;
         name: string,

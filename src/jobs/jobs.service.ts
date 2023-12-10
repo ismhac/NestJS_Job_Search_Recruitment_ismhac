@@ -22,6 +22,30 @@ export class JobsService {
 
   private readonly logger = new Logger(DatabasesService.name);
 
+
+  async getAppliedUsers(jobId: string, queryString: string) {
+
+    let { filter } = aqp(queryString);
+    filter.current = filter.current ? filter.current : 1;
+    filter.pageSize = filter.pageSize ? filter.pageSize : 10;
+    const appliedUsers = await this.resumeModel.find({ jobId: jobId }).select({ "email": 1, "file": 1, "status": 1, "createdAt": 1, "_id": 1 });
+
+    const totalItems = appliedUsers.length;
+    const totalPages = Math.ceil(totalItems / filter.pageSize);
+    const offset = (+filter.current - 1) * (+filter.pageSize);
+    const defaultLimit = +filter.pageSize ? +filter.pageSize : 10;
+
+    return {
+      meta: {
+        current: filter.current,
+        pageSize: filter.pageSize,
+        pages: totalPages,
+        total: totalItems
+      },
+      results: appliedUsers.slice(offset, offset + defaultLimit)
+    }
+  }
+
   async create(createJobDto: CreateJobDto, user: IUser) {
     const {
       name, skills, company, location, salary,

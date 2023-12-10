@@ -3,6 +3,7 @@ import { Type } from "class-transformer";
 import { IsEmail, IsMongoId, IsNotEmpty, IsNotEmptyObject, IsObject, IsOptional, IsString, ValidateNested } from "class-validator";
 import mongoose from "mongoose";
 import { CreateCompanyDto } from "src/companies/dto/create-company.dto";
+import { ResumeInfo } from "./update-user.dto";
 
 // data transfer object
 
@@ -106,12 +107,7 @@ export class RegisterUserDto {
 
     @IsOptional()
     @ApiHideProperty()
-    listCv: {
-        file: {
-            url: string,
-            name: string
-        }
-    }[]
+    listCv: ResumeInfo[]
 }
 
 

@@ -6,13 +6,22 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
 import mongoose from 'mongoose';
 import aqp from 'api-query-params';
+import { User, UserDocument } from 'src/users/schemas/user.schema';
+import { Job, JobDocument } from 'src/jobs/schemas/job.schema';
 
 @Injectable()
 export class ResumesService {
 
   constructor(
     @InjectModel(Resume.name)
-    private resumeModel: SoftDeleteModel<ResumeDocument>
+    private resumeModel: SoftDeleteModel<ResumeDocument>,
+
+    @InjectModel(User.name)
+    private userModel: SoftDeleteModel<UserDocument>,
+
+    @InjectModel(Job.name)
+    private jobModel: SoftDeleteModel<JobDocument>,
+
   ) { }
 
   async findByUsers(user: IUser) {
@@ -37,6 +46,10 @@ export class ResumesService {
     const existingResume = await this.resumeModel.findOne({ jobId, userId: _id });
     if (existingResume) throw new BadRequestException(`Resume of user with _id ${_id} for job ${jobId} is already exist`)
 
+    const currentJob = await this.jobModel.find({ _id: jobId }).select({ "name": 1 });
+    const jobName = currentJob[0].name;
+
+
     const newCv = await this.resumeModel.create({
       file, companyId, jobId, email, userId: _id,
       status: "PENDING",
@@ -52,6 +65,39 @@ export class ResumesService {
         }
       ]
     })
+
+    await this.jobModel.updateOne(
+      { _id: jobId },
+      {
+        $addToSet: {
+          appliedUsers: {
+            _id: user._id,
+            name: user.name,
+            email: user.email
+          }
+        },
+        updatedBy: {
+          _id: user._id,
+          email: user.email
+        }
+      }
+    )
+
+    await this.userModel.updateOne(
+      { _id: user._id },
+      {
+        $addToSet: {
+          appliedJobs: {
+            _id: jobId,
+            name: jobName,
+          }
+        },
+        updatedBy: {
+          _id: user._id,
+          email: user.email
+        }
+      }
+    )
     return newCv;
   }
 

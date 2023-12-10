@@ -212,5 +212,15 @@ export class JobsController {
   }
 
   // api get list user apply jobs
-  
+
+
+  @Get(':id/applied-users')
+  @ApiBearerAuth('token')
+  getAppliedUsers(@Param('id') id: string,
+    @Query("current") currentPage: number,
+    @Query("pageSize") limit: number,
+    @Query() queryString: string
+  ) {
+    return this.jobsService.getAppliedUsers(id, queryString);
+  }
 }

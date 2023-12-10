@@ -11,10 +11,8 @@ class Company {
 }
 
 export class ResumeInfo {
-    file: {
-        url: string,
-        name: string
-    }
+    url: string
+    name: string
 }
 
 export class UpdateUserDto extends PartialType(OmitType(CreateUserDto, ['password'])) {
@@ -53,10 +51,5 @@ export class UpdateUserDto extends PartialType(OmitType(CreateUserDto, ['passwor
     company: Company;
 
     @IsOptional()
-    listCv: {
-        file: {
-            url: string,
-            name: string
-        }
-    }[]
+    listCv: ResumeInfo[]
 }
