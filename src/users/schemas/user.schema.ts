@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument } from 'mongoose';
 import { Role } from 'src/roles/schemas/role.schema';
+import { ResumeInfo } from '../dto/update-user.dto';
 
 export type UserDocument = HydratedDocument<User>;
 
@@ -35,11 +36,19 @@ export class User {
         name: string
     }
 
-    @Prop({ type: [String] })
-    listCv: string[]
+    @Prop({ type: [Object] })
+    listCv: ResumeInfo[]
 
+    // list jobs user liked
     @Prop({ type: [Object] })
     preferJobs: {
+        _id: mongoose.Schema.Types.ObjectId;
+        name: string
+    }[]
+
+    // list jobs user applied
+    @Prop({ type: [Object] })
+    appliedJobs: {
         _id: mongoose.Schema.Types.ObjectId;
         name: string
     }[]

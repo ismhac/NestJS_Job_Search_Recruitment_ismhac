@@ -19,6 +19,7 @@ export class Job {
         logo: string;
     };
 
+    // list user liked job
     @Prop({ type: [Object] })
     preferredUsers: {
         _id: mongoose.Schema.Types.ObjectId;
@@ -26,7 +27,13 @@ export class Job {
         email: string;
     }[];
 
-    
+    // list user applied job
+    @Prop({ type: [Object] })
+    appliedUsers: {
+        _id: mongoose.Schema.Types.ObjectId;
+        name: string;
+        email: string;
+    }[];
 
 
 

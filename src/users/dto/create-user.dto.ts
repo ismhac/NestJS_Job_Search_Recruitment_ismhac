@@ -106,7 +106,12 @@ export class RegisterUserDto {
 
     @IsOptional()
     @ApiHideProperty()
-    listCv: string[]
+    listCv: {
+        file: {
+            url: string,
+            name: string
+        }
+    }[]
 }
 
 
