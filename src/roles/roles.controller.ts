@@ -12,19 +12,19 @@ export class RolesController {
   constructor(private readonly rolesService: RolesService) { }
 
   @Post()
-  @ResponseMessage('Role created successfully')
+  @ResponseMessage('create a role successfully')
   // swagger
   @ApiBearerAuth('token')
-  @ApiOperation({ summary: 'API create a new role' })
+  @ApiOperation({ summary: 'For create a new role' })
   create(@Body() createRoleDto: CreateRoleDto, @User() user: IUser) {
     return this.rolesService.create(createRoleDto, user);
   }
 
   @Get()
-  @ResponseMessage('Roles fetched successfully')
+  @ResponseMessage('get roles successfully')
   // swagger
   @ApiBearerAuth('token')
-  @ApiOperation({ summary: 'API get all roles' })
+  @ApiOperation({ summary: 'For get roles' })
   findAll(
     @Query('current') currentPage: string,
     @Query('pageSize') limit: string,
@@ -34,28 +34,28 @@ export class RolesController {
   }
 
   @Get(':id')
-  @ResponseMessage('Role fetched successfully')
+  @ResponseMessage('get a role successfully')
   // swagger
   @ApiBearerAuth('token')
-  @ApiOperation({ summary: 'API get a role by id' })
+  @ApiOperation({ summary: 'For get a role' })
   findOne(@Param('id') id: string) {
     return this.rolesService.findOne(id);
   }
 
   @Patch(':id')
-  @ResponseMessage('Role updated successfully')
+  @ResponseMessage('update a role successfully')
   // swagger
   @ApiBearerAuth('token')
-  @ApiOperation({ summary: 'API update a role by id' })
+  @ApiOperation({ summary: 'For update a role' })
   update(@Param('id') id: string, @Body() updateRoleDto: UpdateRoleDto, @User() user: IUser) {
     return this.rolesService.update(id, updateRoleDto, user);
   }
 
   @Delete(':id')
-  @ResponseMessage('Role deleted successfully')
+  @ResponseMessage('delete a role successfully')
   // swagger
   @ApiBearerAuth('token')
-  @ApiOperation({ summary: 'API delete a role by id' })
+  @ApiOperation({ summary: 'For delete a role' })
   remove(@Param('id') id: string, @User() user: IUser) {
     return this.rolesService.remove(id, user);
   }

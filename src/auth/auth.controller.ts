@@ -25,10 +25,10 @@ export class AuthController {
     ) { }
 
     @Post('/logout')
-    @ResponseMessage("Logout User")
+    @ResponseMessage("logout successfully")
     // swagger
     @ApiBearerAuth('token')
-    @ApiOperation({ summary: 'API logout' })
+    @ApiOperation({ summary: 'For logout account' })
     handleLogout(
         @Res({ passthrough: true }) response: Response,
         @User() user: IUser
@@ -46,21 +46,21 @@ export class AuthController {
 
     @Public()
     @Get('/refresh')
-    @ResponseMessage("Get user by refresh token")
+    @ResponseMessage("get refresh token successfully")
     // swagger
     // @ApiBearerAuth('token')
     @ApiExcludeEndpoint() // hide this endpoint in swagger
-    @ApiOperation({ summary: 'API get user by refresh token' })
+    @ApiOperation({ summary: 'For get refresh token' })
     handleRefreshToken(@Req() request: Request, @Res({ passthrough: true }) response: Response) { // req.user
         const refreshToken = request.headers.authorization;
         return this.authService.processNewToken(refreshToken, response);
     }
 
     @Get('/account')
-    @ResponseMessage("Get user information success")
+    @ResponseMessage("fetch user account successfully")
     // swagger
     @ApiBearerAuth('token')
-    @ApiOperation({ summary: 'API get user information' })
+    @ApiOperation({ summary: 'For fetch user account' })
     async handleGetAccount(@User() user: IUser) { // req.user
         const temp = await this.roleService.findOne(user.role._id) as any; // disable check type
         user.permissions = temp.permissions;
@@ -81,9 +81,9 @@ export class AuthController {
 
     @Public()
     @Post('/user-register')
-    @ResponseMessage('Register a new user success')
+    @ResponseMessage('user register successfully')
     // swagger
-    @ApiOperation({ summary: 'API register user' })
+    @ApiOperation({ summary: 'For user register' })
     @ApiBody({ type: RegisterUserDto })
     handleRegister(@Body() registerUserDto: RegisterUserDto) {
         return this.authService.userRegister(registerUserDto);
@@ -95,9 +95,9 @@ export class AuthController {
     @UseGuards(ThrottlerGuard)
     @Throttle(60, 60)
     @Post('/login')
-    @ResponseMessage('Login successfully')
+    @ResponseMessage('login successfully')
     // swagger
-    @ApiOperation({ summary: 'API login' })
+    @ApiOperation({ summary: 'For login' })
     @ApiBody({ type: UserLoginDto })
     handleLogin(
         @Req() req,
@@ -107,9 +107,9 @@ export class AuthController {
 
     @Public()
     @Post('/recruiter-register')
-    @ResponseMessage('Register a new recruiter success')
+    @ResponseMessage('recruiter register successfully')
     // swagger
-    @ApiOperation({ summary: 'API register recruiter' })
+    @ApiOperation({ summary: 'For recruiter register' })
     @ApiBody({ type: RegisterRecruiterDto })
     recruiterRegister(
         @Body() registerRecruiterDto: RegisterRecruiterDto

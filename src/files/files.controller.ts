@@ -19,7 +19,7 @@ export class FilesController {
   ) { }
 
   @ApiBearerAuth('token')
-  @ApiOperation({ summary: 'API upload file' })
+  @ApiOperation({ summary: 'For upload a file' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -34,7 +34,7 @@ export class FilesController {
   })
   @Post('upload')
   @UseFilters(new HttpExceptionFilter())
-  @ResponseMessage('Upload file successfully')
+  @ResponseMessage('upload a file successfully')
   @UseInterceptors(FileInterceptor('fileUpload'))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     const CLIENT_ID = this.configService.get<string>('CLIENT_ID');
@@ -92,9 +92,10 @@ export class FilesController {
   }
 
   @Get('download-file/:url')
+  @ResponseMessage("download a file successfully")
   //  swagger
   @ApiBearerAuth('token')
-  @ApiOperation({ summary: 'API download file' })
+  @ApiOperation({ summary: 'For download a file' })
   async downloadFileFromURL(@Res() res: Response, @Param('url') url: string) {
     try {
       const response = await axios.get(url, { responseType: 'stream' });

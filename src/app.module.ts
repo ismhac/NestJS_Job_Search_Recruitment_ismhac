@@ -19,6 +19,7 @@ import { RolesModule } from './roles/roles.module';
 import { SubscribersModule } from './subscribers/subscribers.module';
 import { UsersModule } from './users/users.module';
 import { UserProfilesModule } from './user_profiles/user_profiles.module';
+import { UserRegisterTempsModule } from './user_register_temps/user_register_temps.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { UserProfilesModule } from './user_profiles/user_profiles.module';
     MailModule,
     HealthModule,
     UserProfilesModule,
+    UserRegisterTempsModule,
   ],
   controllers: [AppController],
   providers: [

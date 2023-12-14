@@ -12,10 +12,10 @@ export class CompaniesController {
   constructor(private readonly companiesService: CompaniesService) { }
 
   @Post()
-  @ResponseMessage('Create a new company successfully')
+  @ResponseMessage('create a new company successfully')
   // swagger
   @ApiBearerAuth('token')
-  @ApiOperation({ summary: 'API create a new company' })
+  @ApiOperation({ summary: 'For create a new company' })
   @ApiBody({ type: CreateCompanyDto })
   create(@Body() createCompanyDto: CreateCompanyDto, @User() user: IUser) {
     return this.companiesService.create(createCompanyDto, user);
@@ -24,9 +24,9 @@ export class CompaniesController {
 
   @Public()
   @Get()
-  @ResponseMessage('Get all companies successfully')
+  @ResponseMessage('get companies successfully')
   // swagger
-  @ApiOperation({ summary: 'API get all companies' })
+  @ApiOperation({ summary: 'For get companies' })
   @ApiQuery({ name: 'current', required: false, type: Number, description: 'Current page', example: 1 })
   @ApiQuery({ name: 'pageSize', required: false, type: Number, description: 'Page size', example: 10 })
   @ApiQuery({ name: 'name', required: false, type: String, description: 'Search for companies by name', example: '/Facebook/i' })
@@ -41,42 +41,18 @@ export class CompaniesController {
 
   @Public()
   @Get(':id')
-  @ResponseMessage('Get a company successfully')
+  @ResponseMessage('get a company successfully')
   // swagger
-  @ApiOperation({ summary: 'API get a company by id' })
+  @ApiOperation({ summary: 'For get a company' })
   findOne(@Param('id') id: string) {
     return this.companiesService.findOne(id);
   }
 
   @Patch(':id')
-  @ResponseMessage('Update a company successfully')
+  @ResponseMessage('update a company successfully')
   // swagger
   @ApiBearerAuth('token')
-  @ApiOperation({ summary: 'API update a company by id' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      required: [],
-      properties: {
-        name: {
-          type: 'string',
-          example: 'Facebook',
-        },
-        address: {
-          type: 'string',
-          example: 'USA',
-        },
-        description: {
-          type: 'string',
-          example: 'Facebook is a social networking site that makes it easy for you to connect and share with family and friends online.',
-        },
-        logo: {
-          type: 'string',
-          example: 'https://www.facebook.com/images/fb_icon_325x325.png',
-        }
-      },
-    },
-  })
+  @ApiOperation({ summary: 'For update a company' })
   update(
     @Param('id') id: string,
     @Body() updateCompanyDto: UpdateCompanyDto,
@@ -86,10 +62,10 @@ export class CompaniesController {
   }
 
   @Delete(':id')
-  @ResponseMessage('Remove a company successfully')
+  @ResponseMessage('delete a company successfully')
   // swagger
   @ApiBearerAuth('token')
-  @ApiOperation({ summary: 'API remove a company by id' })
+  @ApiOperation({ summary: 'For delete a company' })
   remove(@Param('id') id: string, @User() user: IUser) {
     return this.companiesService.remove(id, user);
   }

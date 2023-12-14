@@ -12,53 +12,10 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) { }
 
   @Post()
-  @ResponseMessage('Create a new user success')
+  @ResponseMessage('create a new user success')
   // swagger
   @ApiBearerAuth('token')
-  @ApiOperation({ summary: 'API create a new user' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      required: [],
-      properties: {
-        name: {
-          type: 'string',
-          example: 'Nguyen Van A'
-        },
-        email: {
-          type: 'string',
-          example: 'useremail@gmail.com'
-        },
-        password: {
-          type: 'string',
-          example: '123456'
-        },
-        avatar: {
-          type: 'string',
-          example: "image_file_path"
-        },
-        age: {
-          type: 'number',
-          example: 20
-        },
-        address: {
-          type: 'string',
-          example: 'Ha Noi'
-        },
-        role: {
-          type: 'string',
-          example: '60f6f8e2a0a3a11b2c1b2f8d'
-        },
-        company: {
-          type: 'object',
-          example: {
-            _id: '60f6f8e2a0a3a11b2c1b2f8d',
-            name: 'ABC Company'
-          }
-        }
-      }
-    }
-  })
+  @ApiOperation({ summary: 'For create a user' })
   async create(
     @Body() createUserDto: CreateUserDto,
     @User() user: IUser) {
@@ -70,9 +27,9 @@ export class UsersController {
   }
 
   @Get()
-  @ResponseMessage('Get all user success')
-  //
+  @ResponseMessage('get all user success')
   @ApiBearerAuth('token')
+  @ApiOperation({ summary: "For get users" })
   findAll(
     @Query('current') currentPage: string, // const currentPage: string = req.query.page
     @Query('pageSize') limit: string,      // const limit: string = req.query.limit
@@ -83,10 +40,9 @@ export class UsersController {
 
   // @Public()
   @Get(':id')
-  @ResponseMessage('Get a user success')
-  //
+  @ResponseMessage('get a user success')
   @ApiBearerAuth('token')
-  @ApiOperation({ summary: 'API get a user by id' })
+  @ApiOperation({ summary: 'For get a user information' })
   async findOne(@User() user: IUser) {
     return await this.usersService.findOne(user);
   }
@@ -94,9 +50,9 @@ export class UsersController {
 
   // @Public()
   @Patch(':id')
-  @ResponseMessage('Update a user success')
-  //
+  @ResponseMessage('update a user success')
   @ApiBearerAuth('token')
+  @ApiOperation({ summary: "For update a user" })
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
@@ -106,23 +62,21 @@ export class UsersController {
 
 
   @Delete(':id')
-  @ResponseMessage('Remove a user success')
-  //
+  @ResponseMessage('remove a user success')
   @ApiBearerAuth('token')
+  @ApiOperation({ summary: "For delete a user" })
   async remove(
     @Param('id') id: string,
     @User() user: IUser) {
     return await this.usersService.remove(id, user);
   }
 
-
   // custom api
   // @Public()
   @Patch('/jobs/like-jobs/:jobId')
-  @ResponseMessage('Add like job success')
-  // swagger
+  @ResponseMessage('add like job success')
   @ApiBearerAuth('token')
-  @ApiOperation({ summary: 'API for like job' })
+  @ApiOperation({ summary: 'For like a job' })
   async addPreferJob(
     @User() user: IUser,
     @Param('jobId') jobId: string) {
@@ -132,10 +86,10 @@ export class UsersController {
 
   // @Public()
   @Patch('/jobs/unlike-jobs/:jobId')
-  @ResponseMessage('Add unlike job success')
+  @ResponseMessage('unlike job success')
   // swagger
   @ApiBearerAuth('token')
-  @ApiOperation({ summary: 'API for unlike jobs' })
+  @ApiOperation({ summary: 'for unlike a job' })
   async unPreferJob(
     @User() user: IUser,
     @Param('jobId') jobId: string) {
@@ -143,32 +97,31 @@ export class UsersController {
     return result;
   }
 
-
   @Public()
   @Get("reset-password/:email")
-  @ResponseMessage("Reset password")
+  @ResponseMessage("send reset password email successfully")
   // swagger
-  @ApiOperation({ summary: 'API reset password' })
+  @ApiOperation({ summary: 'For send reset password email' })
   async resetPassword(@Param('email') email: string) {
     let result = await this.usersService.requestPasswordReset(email);
     return result;
   }
 
   @Get("/jobs/prefer-jobs")
-  @ResponseMessage("Get all prefer jobs of user success")
+  @ResponseMessage("get prefer jobs successfully")
   // swagger
   @ApiBearerAuth('token')
-  @ApiOperation({ summary: 'API for get all prefer jobs of user' })
+  @ApiOperation({ summary: `For get user's prefer jobs` })
   async getAllPreferJob(@User() user: IUser) {
     let result = await this.usersService.getAllPreferJob(user);
     return result;
   }
 
   @Get("/jobs/apply-jobs")
-  @ResponseMessage("Get all apply jobs of user success")
+  @ResponseMessage("get applied jobs successfully")
   // swagger
   @ApiBearerAuth('token')
-  @ApiOperation({ summary: 'API for get all apply jobs of user' })
+  @ApiOperation({ summary: `For get user's applied jobs` })
   async getAllApplyJob(@User() user: IUser) {
     let result = await this.usersService.getAllApplyJob(user);
     return result;
@@ -177,8 +130,8 @@ export class UsersController {
 
   @Public()
   @Patch("/change-password/:resetPasswordToken")
-  @ResponseMessage("Change password success")
-  @ApiOperation({ summary: 'API for change password' })
+  @ResponseMessage("change password success")
+  @ApiOperation({ summary: 'For change password' })
   changePassword(@Param('resetPasswordToken') resetPasswordToken: string,
     @Body() updateUserPasswordDto: UpdateUserPasswordDto) {
     return this.usersService.changePassword(resetPasswordToken, updateUserPasswordDto);

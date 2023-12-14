@@ -28,7 +28,7 @@ export class JobsService {
     let { filter } = aqp(queryString);
     filter.current = filter.current ? filter.current : 1;
     filter.pageSize = filter.pageSize ? filter.pageSize : 10;
-    const appliedUsers = await this.resumeModel.find({ jobId: jobId }).select({ "email": 1, "file": 1, "status": 1, "createdAt": 1, "_id": 1 });
+    const appliedUsers = await this.resumeModel.find({ jobId: jobId }).select({ "jobId": 1, "email": 1, "file": 1, "status": 1, "createdAt": 1, "_id": 1 });
 
     const totalItems = appliedUsers.length;
     const totalPages = Math.ceil(totalItems / filter.pageSize);
