@@ -14,4 +14,11 @@ export class UsersRegisterTempsController {
     let result = this.usersRegisterTempsService.senEmailRegister(createUsersRegisterTempDto);
     return result;
   }
+
+  @Public()
+  @Post("/confirm-register/:otp")
+  handleRegister(@Param("otp") otp: string) {
+    let result = this.usersRegisterTempsService.handleRegister(otp);
+    return result;
+  }
 }

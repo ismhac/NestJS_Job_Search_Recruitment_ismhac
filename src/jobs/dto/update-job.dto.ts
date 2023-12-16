@@ -35,19 +35,23 @@ export class UpdateJobDto extends PartialType(CreateJobDto) {
     skills: string[];
 
 
-    @ApiProperty({
-        example: {
-            "_id": "64871701c7573fac797f83ea",
-            "name": "Facebook",
-            "logo": "https://www.facebook.com/images/fb_icon_325x325.png"
-        },
-        required: false
-    })
+    // @ApiProperty({
+    //     example: {
+    //         "_id": "64871701c7573fac797f83ea",
+    //         "name": "Facebook",
+    //         "logo": "https://www.facebook.com/images/fb_icon_325x325.png"
+    //     },
+    //     required: false
+    // })
+    // @IsOptional()
+    // @IsObject()
+    // @ValidateNested()
+    // @Type(() => Company)
+    // company: Company;
+
     @IsOptional()
-    @IsObject()
-    @ValidateNested()
-    @Type(() => Company)
-    company: Company;
+    @ApiProperty({ example: "64871701c7573fac797f83ea" })
+    company: string
 
 
     @ApiProperty({ example: "NewYork", required: false })

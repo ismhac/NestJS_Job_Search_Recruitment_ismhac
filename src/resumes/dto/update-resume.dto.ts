@@ -14,7 +14,6 @@ export class UpdateResumeDto extends PartialType(CreateResumeDto) {
     @IsOptional()
     userId: mongoose.Schema.Types.ObjectId;
 
-
     @ApiProperty({
         example: {
             "url": "https://drive.google.com/uc?id=1Vn85QZC32LC_zUAhfc8-qNo-PNc8NIph",

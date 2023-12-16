@@ -12,7 +12,6 @@ export class ResumesController {
 
   @Post('by-user')
   @ResponseMessage('get resumes successfully')
-  // swagger
   @ApiBearerAuth('token')
   @ApiOperation({ summary: `For get user's resumes` })
   getResumesByUser(@User() user: IUser) {
@@ -21,7 +20,6 @@ export class ResumesController {
 
   @Post()
   @ResponseMessage('create a resume successfully')
-  // swagger
   @ApiBearerAuth('token')
   @ApiOperation({ summary: 'For create a new resume' })
   create(@Body() createUserCv: CreateUserCvDto, @User() user: IUser) {
@@ -30,7 +28,6 @@ export class ResumesController {
 
   @Get()
   @ResponseMessage('get resumes successfully')
-  // swagger
   @ApiBearerAuth('token')
   @ApiOperation({ summary: 'For get resumes' })
   @ApiQuery({ name: 'current', required: false, type: Number, description: 'Current page', example: 1 })
@@ -49,7 +46,6 @@ export class ResumesController {
 
   @Get(':id')
   @ResponseMessage('get a resume successfully')
-  // swagger
   @ApiBearerAuth('token')
   @ApiOperation({ summary: 'For get a resume' })
   findOne(@Param('id') id: string) {
@@ -58,7 +54,6 @@ export class ResumesController {
 
   @Patch(':id')
   @ResponseMessage('update a resume successfully')
-  // swagger
   @ApiBearerAuth('token')
   @ApiOperation({ summary: 'For update a resume' })
   update(@Param('id') id: string, @Body("status") status: string, @User() user: IUser) {
@@ -67,7 +62,6 @@ export class ResumesController {
 
   @Delete(':id')
   @ResponseMessage('delete resume success')
-  // swagger
   @ApiBearerAuth('token')
   @ApiOperation({ summary: 'For delete a resume' })
   remove(@Param('id') id: string, @User() user: IUser) {

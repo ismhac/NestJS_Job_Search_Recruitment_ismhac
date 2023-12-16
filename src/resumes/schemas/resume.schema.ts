@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { HydratedDocument, Types } from 'mongoose';
+import { BaseSchema } from 'src/base_schemas/base.schema';
 import { Company } from 'src/companies/schemas/company.schema';
 import { Job } from 'src/jobs/schemas/job.schema';
 import { User } from 'src/users/schemas/user.schema';
@@ -7,13 +8,13 @@ import { User } from 'src/users/schemas/user.schema';
 export type ResumeDocument = HydratedDocument<Resume>;
 
 @Schema({ timestamps: true })
-export class Resume {
+export class Resume extends BaseSchema {
 
     @Prop()
     email: string;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: User.name })
-    userId: mongoose.Schema.Types.ObjectId;
+    user: mongoose.Schema.Types.ObjectId;
 
     @Prop({ type: Object })
     // url: string;
@@ -26,10 +27,10 @@ export class Resume {
     status: string;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Company.name })
-    companyId: mongoose.Schema.Types.ObjectId;
+    company: mongoose.Schema.Types.ObjectId;
 
     @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Job.name })
-    jobId: mongoose.Schema.Types.ObjectId;
+    job: mongoose.Schema.Types.ObjectId;
 
     @Prop({ type: mongoose.Schema.Types.Array })
     history: {
@@ -40,37 +41,6 @@ export class Resume {
             email: string
         };
     }[]
-
-    // 
-    @Prop({ type: Object })
-    createdBy: {
-        _id: mongoose.Schema.Types.ObjectId;
-        email: string
-    }
-
-    @Prop({ type: Object })
-    updatedBy: {
-        _id: mongoose.Schema.Types.ObjectId;
-        email: string
-    }
-
-    @Prop({ type: Object })
-    deletedBy: {
-        _id: mongoose.Schema.Types.ObjectId;
-        email: string
-    }
-
-    @Prop()
-    createdAt: Date;
-
-    @Prop()
-    updatedAt: Date;
-
-    @Prop()
-    isDeleted: boolean;
-
-    @Prop()
-    deleteAt: Date;
 }
 
 export const ResumeSchema = SchemaFactory.createForClass(Resume);

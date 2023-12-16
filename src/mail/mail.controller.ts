@@ -25,38 +25,38 @@ export class MailController {
 
   ) { }
 
-  @Get()
-  @Public()
-  @ResponseMessage("Test email")
-  @Cron("0 0 19 * * 0") // 7pm every sunday
-  // swagger
-  @ApiOperation({ summary: 'API schedule send mail' })
-  async handleTestEmail() {
-    const subscribers = await this.subscriberModel.find({});
-    for (const subs of subscribers) {
-      const subsSkills = subs.skills;
-      const jobWithMatchingSkills = await this.jobModel.find({ skills: { $in: subsSkills } });
-      if (jobWithMatchingSkills.length > 0) {
-        const jobs = jobWithMatchingSkills.map(item => {
-          return {
-            name: item.name,
-            company: item.company.name,
-            salary: `${item.salary}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + " đ",
-            skills: item.skills
-          }
-        })
+  // @Get()
+  // @Public()
+  // @ResponseMessage("Test email")
+  // @Cron("0 0 19 * * 0") // 7pm every sunday
+  // // swagger
+  // @ApiOperation({ summary: 'API schedule send mail' })
+  // async handleTestEmail() {
+  //   const subscribers = await this.subscriberModel.find({});
+  //   for (const subs of subscribers) {
+  //     const subsSkills = subs.skills;
+  //     const jobWithMatchingSkills = await this.jobModel.find({ skills: { $in: subsSkills } });
+  //     if (jobWithMatchingSkills.length > 0) {
+  //       const jobs = jobWithMatchingSkills.map(item => {
+  //         return {
+  //           name: item.name,
+  //           company: item.company.name,
+  //           salary: `${item.salary}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') + " đ",
+  //           skills: item.skills
+  //         }
+  //       })
 
-        await this.mailerService.sendMail({
-          to: subs.email,
-          from: '"Support Team" <support@itjobs.com>', // override default from
-          subject: 'Welcome to Nice App! Confirm your Email',
-          template: 'new-job',
-          context: {
-            receiver: subs.name,
-            jobs: jobs,
-          }
-        });
-      }
-    }
-  }
+  //       await this.mailerService.sendMail({
+  //         to: subs.email,
+  //         from: '"Support Team" <support@itjobs.com>', // override default from
+  //         subject: 'Welcome to Nice App! Confirm your Email',
+  //         template: 'new-job',
+  //         context: {
+  //           receiver: subs.name,
+  //           jobs: jobs,
+  //         }
+  //       });
+  //     }
+  //   }
+  // }
 }

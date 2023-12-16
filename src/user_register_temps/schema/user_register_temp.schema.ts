@@ -1,12 +1,10 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
-import { IsEmail } from "class-validator";
+import { IsEmail, IsOptional } from "class-validator";
 import { HydratedDocument } from "mongoose";
+import { BaseSchema } from "src/base_schemas/base.schema";
 
 
 export type UserRegisterTempDocument = HydratedDocument<UsersRegisterTemp>;
-
-@Schema({ timestamps: true })
-
 
 class companyTemp {
     @Prop()
@@ -22,12 +20,15 @@ class companyTemp {
     logo: string
 }
 
-export class UsersRegisterTemp {
+@Schema({ timestamps: true })
+export class UsersRegisterTemp extends BaseSchema {
 
     @Prop()
+    @IsOptional()
     registerToken: string;
 
     @Prop()
+    @IsOptional()
     registerTokenExpires: Date
 
     @Prop()
@@ -38,18 +39,23 @@ export class UsersRegisterTemp {
     password: string
 
     @Prop()
+    @IsOptional()
     name: string
 
     @Prop()
+    @IsOptional()
     age: number
 
     @Prop()
+    @IsOptional()
     gender: string
 
     @Prop()
+    @IsOptional()
     address: string
 
     @Prop()
+    @IsOptional()
     company: companyTemp
 }
 

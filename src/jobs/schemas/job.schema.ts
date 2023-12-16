@@ -1,10 +1,13 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import mongoose, { HydratedDocument, Types } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
+import { BaseSchema } from 'src/base_schemas/base.schema';
+import { Company } from 'src/companies/schemas/company.schema';
+import { User } from 'src/users/schemas/user.schema';
 
 export type JobDocument = HydratedDocument<Job>;
 
 @Schema({ timestamps: true })
-export class Job {
+export class Job extends BaseSchema {
 
     @Prop()
     name: string;
@@ -12,28 +15,15 @@ export class Job {
     @Prop()
     skills: string[];
 
-    @Prop({ type: Object })
-    company: {
-        _id: mongoose.Schema.Types.ObjectId;
-        name: string;
-        logo: string;
-    };
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Company.name })
+    company: mongoose.Schema.Types.ObjectId;
 
-    // list user liked job
-    @Prop({ type: [Object] })
-    preferredUsers: {
-        _id: mongoose.Schema.Types.ObjectId;
-        name: string;
-        email: string;
-    }[];
+    @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: "USer" })
+    likedUsers: mongoose.Schema.Types.ObjectId[];
 
     // list user applied job
-    @Prop({ type: [Object] })
-    appliedUsers: {
-        _id: mongoose.Schema.Types.ObjectId;
-        name: string;
-        email: string;
-    }[];
+    @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: "User" })
+    appliedUsers: mongoose.Schema.Types.ObjectId[];
 
     @Prop()
     location: string;
@@ -58,37 +48,6 @@ export class Job {
 
     @Prop()
     isActive: boolean;
-
-    // 
-    @Prop({ type: Object })
-    createdBy: {
-        _id: mongoose.Schema.Types.ObjectId;
-        email: string
-    }
-
-    @Prop({ type: Object })
-    updatedBy: {
-        _id: mongoose.Schema.Types.ObjectId;
-        email: string
-    }
-
-    @Prop({ type: Object })
-    deletedBy: {
-        _id: mongoose.Schema.Types.ObjectId;
-        email: string
-    }
-
-    @Prop()
-    createdAt: Date;
-
-    @Prop()
-    updatedAt: Date;
-
-    @Prop()
-    isDeleted: boolean;
-
-    @Prop()
-    deleteAt: Date;
 }
 
 export const JobSchema = SchemaFactory.createForClass(Job);

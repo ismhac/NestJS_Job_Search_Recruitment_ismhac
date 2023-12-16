@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { InjectModel } from '@nestjs/mongoose';
@@ -9,6 +9,8 @@ import mongoose from 'mongoose';
 import aqp from 'api-query-params';
 import { DatabasesService } from 'src/databases/databases.service';
 import { Resume, ResumeDocument } from 'src/resumes/schemas/resume.schema';
+import { Company, CompanyDocument } from 'src/companies/schemas/company.schema';
+import { ErrorConstants } from 'src/utils/ErrorConstants';
 
 @Injectable()
 export class JobsService {
@@ -18,6 +20,9 @@ export class JobsService {
 
     @InjectModel(Resume.name)
     private resumeModel: SoftDeleteModel<ResumeDocument>,
+
+    @InjectModel(Company.name)
+    private companyModel: SoftDeleteModel<CompanyDocument>
   ) { }
 
   private readonly logger = new Logger(DatabasesService.name);
@@ -51,9 +56,26 @@ export class JobsService {
       name, skills, company, location, salary,
       quantity, level, description, startDate, endDate, isActive
     } = createJobDto;
+
+    // check company is exist
+    try {
+      let isExistCompany = await this.companyModel.exists({ _id: company });
+    } catch (error) {
+      throw new BadRequestException(ErrorConstants.NOT_FOUND_COMPANY_ID(company))
+    }
+
     return await this.jobModel.create({
-      name, skills, company, location, salary,
-      quantity, level, description, startDate, endDate, isActive,
+      name: name,
+      skills: skills,
+      company: company,
+      location: location,
+      salary: salary,
+      quantity: quantity,
+      level: level,
+      description: description,
+      startDate: startDate,
+      endDate: endDate,
+      isActive: isActive,
       createdBy: {
         _id: user._id,
         email: user.email
@@ -130,10 +152,21 @@ export class JobsService {
   }
 
   findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return 'not found job';
+    try {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
+        throw new BadRequestException(ErrorConstants.NOT_FOUND_JOB_ID)
+      }
+      let job = this.jobModel.findById(id)
+        .populate({
+          path: "company",
+          select: { name: 1, logo: 1 }
+        });
+
+      return job;
+
+    } catch (error) {
+      throw new BadRequestException(ErrorConstants.NOT_FOUND_JOB_ID(id))
     }
-    return this.jobModel.findById(id);
   }
 
   async update(id: string, updateJobDto: UpdateJobDto, user: IUser) {

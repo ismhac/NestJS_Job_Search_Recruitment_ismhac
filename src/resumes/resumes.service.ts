@@ -8,6 +8,7 @@ import mongoose from 'mongoose';
 import aqp from 'api-query-params';
 import { User, UserDocument } from 'src/users/schemas/user.schema';
 import { Job, JobDocument } from 'src/jobs/schemas/job.schema';
+import { ErrorConstants } from 'src/utils/ErrorConstants';
 
 @Injectable()
 export class ResumesService {
@@ -44,16 +45,16 @@ export class ResumesService {
     const { email, _id } = user;
 
     const existingResume = await this.resumeModel.findOne({ jobId, userId: _id });
-    if (existingResume) throw new BadRequestException(`Resume of user with _id ${_id} for job ${jobId} is already exist`)
+    if (existingResume) throw new BadRequestException(ErrorConstants.RESUME_IS_EXIST(user._id, jobId.toString()))
 
-    const currentJob = await this.jobModel.find({ _id: jobId }).select({ "name": 1 });
-    const jobName = currentJob[0].name;
+    const newResume = await this.resumeModel.create({
 
-
-    const newCv = await this.resumeModel.create({
-      file, companyId, jobId, email, userId: _id,
+      email: email,
+      user: user._id,
+      file: file,
       status: "PENDING",
-      createdBy: { _id, email },
+      company: companyId,
+      job: jobId,
       history: [
         {
           status: "PENDING",
@@ -70,11 +71,7 @@ export class ResumesService {
       { _id: jobId },
       {
         $addToSet: {
-          appliedUsers: {
-            _id: user._id,
-            name: user.name,
-            email: user.email
-          }
+          appliedUsers: user._id
         },
         updatedBy: {
           _id: user._id,
@@ -87,10 +84,7 @@ export class ResumesService {
       { _id: user._id },
       {
         $addToSet: {
-          appliedJobs: {
-            _id: jobId,
-            name: jobName,
-          }
+          appliedJobs: jobId
         },
         updatedBy: {
           _id: user._id,
@@ -98,7 +92,7 @@ export class ResumesService {
         }
       }
     )
-    return newCv;
+    return newResume;
   }
 
   async findAll(currentPage: number, limit: number, queryString: string) {

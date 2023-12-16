@@ -56,13 +56,11 @@ export class CreateUserCvDto {
 
     @ApiProperty({ example: "64871701c7573fac797f83ea" })
     @IsNotEmpty({ message: 'CompanyId is required' })
-    @IsMongoId({ message: 'companyId is a mongoId' })
-    companyId: mongoose.Schema.Types.ObjectId;
+    companyId: string;
 
     @ApiProperty({ example: "6487e52ae263fe0b853d752a" })
     @IsNotEmpty({ message: 'JobId is required' })
-    @IsMongoId({ message: 'jobId is a mongoId' })
-    jobId: mongoose.Schema.Types.ObjectId;
+    jobId: string;
 }
 
 

@@ -13,7 +13,6 @@ export class UsersController {
 
   @Post()
   @ResponseMessage('create a new user success')
-  // swagger
   @ApiBearerAuth('token')
   @ApiOperation({ summary: 'For create a user' })
   async create(
@@ -31,14 +30,13 @@ export class UsersController {
   @ApiBearerAuth('token')
   @ApiOperation({ summary: "For get users" })
   findAll(
-    @Query('current') currentPage: string, // const currentPage: string = req.query.page
-    @Query('pageSize') limit: string,      // const limit: string = req.query.limit
+    @Query('current') currentPage: string,
+    @Query('pageSize') limit: string,
     @Query() queryString: string
   ) {
     return this.usersService.findAll(+currentPage, +limit, queryString);
   }
 
-  // @Public()
   @Get(':id')
   @ResponseMessage('get a user success')
   @ApiBearerAuth('token')
@@ -47,8 +45,6 @@ export class UsersController {
     return await this.usersService.findOne(user);
   }
 
-
-  // @Public()
   @Patch(':id')
   @ResponseMessage('update a user success')
   @ApiBearerAuth('token')
@@ -60,7 +56,6 @@ export class UsersController {
     return await this.usersService.update(id, updateUserDto, user);
   }
 
-
   @Delete(':id')
   @ResponseMessage('remove a user success')
   @ApiBearerAuth('token')
@@ -71,55 +66,30 @@ export class UsersController {
     return await this.usersService.remove(id, user);
   }
 
-  // custom api
-  // @Public()
   @Patch('/jobs/like-jobs/:jobId')
   @ResponseMessage('add like job success')
   @ApiBearerAuth('token')
   @ApiOperation({ summary: 'For like a job' })
-  async addPreferJob(
+  async addToLikeJobs(
     @User() user: IUser,
     @Param('jobId') jobId: string) {
-    let result = await this.usersService.addPreferJob(user, jobId);
+    let result = await this.usersService.addToLikeJobs(user, jobId);
     return result;
   }
 
-  // @Public()
   @Patch('/jobs/unlike-jobs/:jobId')
   @ResponseMessage('unlike job success')
-  // swagger
   @ApiBearerAuth('token')
   @ApiOperation({ summary: 'for unlike a job' })
-  async unPreferJob(
+  async unLikeAJob(
     @User() user: IUser,
     @Param('jobId') jobId: string) {
-    let result = await this.usersService.unPreferJob(user, jobId);
-    return result;
-  }
-
-  @Public()
-  @Get("reset-password/:email")
-  @ResponseMessage("send reset password email successfully")
-  // swagger
-  @ApiOperation({ summary: 'For send reset password email' })
-  async resetPassword(@Param('email') email: string) {
-    let result = await this.usersService.requestPasswordReset(email);
-    return result;
-  }
-
-  @Get("/jobs/prefer-jobs")
-  @ResponseMessage("get prefer jobs successfully")
-  // swagger
-  @ApiBearerAuth('token')
-  @ApiOperation({ summary: `For get user's prefer jobs` })
-  async getAllPreferJob(@User() user: IUser) {
-    let result = await this.usersService.getAllPreferJob(user);
+    let result = await this.usersService.unLikeAJob(user, jobId);
     return result;
   }
 
   @Get("/jobs/apply-jobs")
   @ResponseMessage("get applied jobs successfully")
-  // swagger
   @ApiBearerAuth('token')
   @ApiOperation({ summary: `For get user's applied jobs` })
   async getAllApplyJob(@User() user: IUser) {
@@ -127,6 +97,15 @@ export class UsersController {
     return result;
   }
 
+
+  @Public()
+  @Get("reset-password/:email")
+  @ResponseMessage("send reset password email successfully")
+  @ApiOperation({ summary: 'For send reset password email' })
+  async resetPassword(@Param('email') email: string) {
+    let result = await this.usersService.requestPasswordReset(email);
+    return result;
+  }
 
   @Public()
   @Patch("/change-password/:resetPasswordToken")

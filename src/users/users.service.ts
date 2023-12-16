@@ -16,6 +16,8 @@ import { Job, JobDocument } from 'src/jobs/schemas/job.schema';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Resume, ResumeDocument } from 'src/resumes/schemas/resume.schema';
 import * as crypto from 'crypto';
+import { ErrorConstants } from 'src/utils/ErrorConstants';
+import { Exception } from 'handlebars/runtime';
 
 
 @Injectable()
@@ -85,18 +87,28 @@ export class UsersService {
     const resumes = await this.ResumeModule.find(
       {
         $and: [
-          { userId: user._id },
+          { user: user._id },
         ]
       }
 
     ).select({
       "_id": 1,
-      "jobId": 1,
+      "job": 1,
       "status": 1,
       "file": 1,
     }).populate({
-      path: "jobId",
-      select: { "name": 1, "company": 1, "location": 1, "salary": 1, "quantity": 1, "level": 1, "startDate": 1, "endDate": 1, "isActive": 1 }
+      path: "job",
+      select: {
+        "name": 1,
+        "company": 1,
+        "location": 1,
+        "salary": 1,
+        "quantity": 1,
+        "level": 1,
+        "startDate": 1,
+        "endDate": 1,
+        "isActive": 1
+      }
     });
 
     const customizedResumes = resumes.map(resume => ({
@@ -105,30 +117,11 @@ export class UsersService {
         file: resume.file,
         status: resume.status,
       },
-      jobInfo: resume.jobId
+      jobInfo: resume.job
     }));
 
     return customizedResumes;
   }
-
-
-  async getAllPreferJob(user: IUser) {
-    const preferJobs = await this.userModel.findById(user._id)
-      .select({ "preferJobs": 1 });
-
-    this.logger.log(preferJobs?.preferJobs);
-
-    const jobs = await this.JobModule.find({
-      _id: {
-        $in: preferJobs?.preferJobs
-      },
-      isActive: true
-    }).select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description")
-
-
-    return { jobs }
-  }
-
 
   async requestPasswordReset(email) {
     const existingUser = await this.userModel.findOne({ email });
@@ -175,90 +168,79 @@ export class UsersService {
     )
   }
 
-  async addPreferJob(user: IUser, jobId: string) {
-    let existingJobs = await this.JobModule.findById({ _id: jobId });
-    let existingUser = await this.userModel.findById({ _id: user._id });
-    if (!existingJobs) {
-      throw new BadRequestException(`Job: ${jobId} does not exist in the system. Please use another job!`)
-    }
-    if (!existingUser) {
-      throw new BadRequestException(`User: ${user._id} does not exist in the system. Please use another user!`)
-    }
+  async addToLikeJobs(user: IUser, jobId: string) {
+    try {
+      let isExistJob = await this.JobModule.exists({ _id: jobId });
+      if (!isExistJob) {
+        throw new BadRequestException(ErrorConstants.NOT_FOUND_JOB_ID(jobId));
+      }
 
-    let updatedJob = await this.JobModule.updateOne(
-      { _id: jobId },
-      {
-        $addToSet: {
-          preferredUsers: {
+      let updatedUser = await this.userModel.updateOne(
+        { _id: user._id },
+        {
+          $addToSet: {
+            likeJobs: jobId
+          },
+          updatedBy: {
             _id: user._id,
-            name: existingUser.name,
-            email: existingUser.email
+            email: user.email
           }
-        },
-        updatedBy: {
-          _id: existingUser._id,
-          email: existingUser.email
         }
-      }
-    )
-    let updatedUser = await this.userModel.updateOne(
-      { _id: user._id },
-      {
-        $addToSet: {
-          preferJobs: {
-            _id: jobId,
-            name: existingJobs.name
+      );
+
+      let updateJob = await this.JobModule.updateOne(
+        { _id: jobId },
+        {
+          $addToSet: {
+            likedUsers: user._id
+          },
+          updatedBy: {
+            _id: user._id,
+            email: user.email
           }
-        },
-        updatedBy: {
-          _id: existingUser._id,
-          email: existingUser.email
         }
-      }
-    )
-    return {
-      addPreferredUsers: updatedJob,
-      addPreferJobs: updatedUser
+      );
+
+      return { updatedUser, updateJob }
+
+    } catch (error) {
+      throw Exception;
     }
   }
 
-  async unPreferJob(user: IUser, jobId: string) {
-    let existingJobs = await this.JobModule.findById({ _id: jobId });
-    let existingUser = await this.userModel.findById({ _id: user._id });
-    if (!existingJobs) {
-      throw new BadRequestException(`Job: ${jobId} does not exist in the system. Please use another job!`)
-    }
-    if (!existingUser) {
-      throw new BadRequestException(`User: ${user._id} does not exist in the system. Please use another user!`)
-    }
-
-    let updatedJob = await this.JobModule.updateOne(
-      { _id: jobId },
-      {
-        $pull: {
-          preferredUsers: { _id: user._id }
-        },
-        updatedBy: {
-          _id: existingUser._id,
-          email: existingUser.email
-        }
+  async unLikeAJob(user: IUser, jobId: string) {
+    try {
+      let existingJobs = await this.JobModule.findById({ _id: jobId });
+      if (!existingJobs) {
+        throw new BadRequestException(ErrorConstants.NOT_FOUND_JOB_ID(jobId))
       }
-    )
-    let updatedUser = await this.userModel.updateOne(
-      { _id: user._id },
-      {
-        $pull: {
-          preferJobs: { _id: jobId }
-        },
-        updatedBy: {
-          _id: existingUser._id,
-          email: existingUser.email
+      let updatedJob = await this.JobModule.updateOne(
+        { _id: jobId },
+        {
+          $pull: {
+            likedUsers: user._id
+          },
+          updatedBy: {
+            _id: user._id,
+            email: user.email
+          }
         }
-      }
-    )
-    return {
-      removePreferredUsers: updatedJob,
-      removePreferJobs: updatedUser
+      )
+      let updatedUser = await this.userModel.updateOne(
+        { _id: user._id },
+        {
+          $pull: {
+            likeJobs: jobId
+          },
+          updatedBy: {
+            _id: user._id,
+            email: user.email
+          }
+        }
+      )
+      return { updatedUser, updatedJob }
+    } catch (error) {
+      throw Exception
     }
   }
 
@@ -332,10 +314,7 @@ export class UsersService {
       }
     })
 
-    newRecruiter.company = {
-      _id: newCompany._id as any,
-      name: newCompany.name
-    };
+    newRecruiter.company = newCompany._id as any;
 
     await newRecruiter.save();
 

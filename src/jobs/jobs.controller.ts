@@ -48,7 +48,9 @@ export class JobsController {
   // swagger
   @ApiOperation({ summary: 'For get a job information' })
   findOne(@Param('id') id: string) {
-    return this.jobsService.findOne(id);
+    let result = this.jobsService.findOne(id);
+
+    return result;
   }
 
   @Patch(':id')
