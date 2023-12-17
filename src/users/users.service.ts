@@ -84,7 +84,7 @@ export class UsersService {
     return await this.userModel.findById(id).populate([
       {
         path: "company",
-        select: { name: 1 }
+        select: { name: 1, logo: 1 }
       }
     ]);
   }

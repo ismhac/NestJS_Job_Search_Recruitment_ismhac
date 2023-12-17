@@ -42,7 +42,6 @@ export class CompaniesController {
   @Public()
   @Get(':id')
   @ResponseMessage('get a company successfully')
-  // swagger
   @ApiOperation({ summary: 'For get a company' })
   findOne(@Param('id') id: string) {
     return this.companiesService.findOne(id);
@@ -50,7 +49,6 @@ export class CompaniesController {
 
   @Patch(':id')
   @ResponseMessage('update a company successfully')
-  // swagger
   @ApiBearerAuth('token')
   @ApiOperation({ summary: 'For update a company' })
   update(
@@ -63,7 +61,6 @@ export class CompaniesController {
 
   @Delete(':id')
   @ResponseMessage('delete a company successfully')
-  // swagger
   @ApiBearerAuth('token')
   @ApiOperation({ summary: 'For delete a company' })
   remove(@Param('id') id: string, @User() user: IUser) {
