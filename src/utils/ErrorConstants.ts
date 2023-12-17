@@ -14,6 +14,11 @@ export class ErrorConstants {
     /* USER */
     public static readonly USER_IS_EXIST = (email: string) => `User is exist with email ${email}`
 
+    public static readonly USER_IS_BLOCKED = (email: string) => `Account with email ${email} is blocked`
+
     /* USER TEMP REGISTER */
     public static readonly NOT_FOUND_USER_TEMP_REGISTER = (otp: string) => `Not found temporary user register with otp ${otp}`
+
+    /* AUTH */
+    public static readonly USERNAME_PASSWORD_INVALID = "email or password invalid"
 }

@@ -18,6 +18,7 @@ import { Resume, ResumeDocument } from 'src/resumes/schemas/resume.schema';
 import * as crypto from 'crypto';
 import { ErrorConstants } from 'src/utils/ErrorConstants';
 import { Exception } from 'handlebars/runtime';
+import { emit } from 'process';
 
 
 @Injectable()
@@ -80,7 +81,12 @@ export class UsersService {
   }
 
   async findUsersById(id: String) {
-    return await this.userModel.findById(id);
+    return await this.userModel.findById(id).populate([
+      {
+        path: "company",
+        select: { name: 1 }
+      }
+    ]);
   }
 
   async getAllApplyJob(user: IUser) {
@@ -439,5 +445,32 @@ export class UsersService {
       }
     )
     return this.userModel.softDelete({ _id: id })
+  }
+
+  async getAllPreferJob(user: IUser) {
+    const likeJobList = await this.userModel.findById(user._id)
+      .select({ likeJobs: 1 });
+
+    const jobs = await this.JobModule.find({
+      _id: {
+        $in: likeJobList.likeJobs
+      },
+      isActive: true
+    }).select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description")
+    return { jobs }
+  }
+
+  async checkUSerIsDeletedFalse(username: string) {
+    let user = await this.userModel.findOne({
+      $and: [
+        { email: username },
+        { isDeleted: false }
+      ]
+    });
+
+    if (!user) {
+      return false;
+    }
+    return true;
   }
 }

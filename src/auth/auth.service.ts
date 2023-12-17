@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from "express";
@@ -7,6 +7,7 @@ import { RolesService } from 'src/roles/roles.service';
 import { RegisterRecruiterDto, RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { IUser } from 'src/users/users.interface';
 import { UsersService } from 'src/users/users.service';
+import { ErrorConstants } from 'src/utils/ErrorConstants';
 
 @Injectable()
 export class AuthService {
@@ -103,8 +104,12 @@ export class AuthService {
 
     async validateUser(username: string, pass: string): Promise<any> {
         const user = await this.usersService.findOneByUsername(username);
+        const userIsDeletedFalse = await this.usersService.checkUSerIsDeletedFalse(username);
         if (user) {
             const isValid = this.usersService.isValidPassword(pass, user.password);
+            if (userIsDeletedFalse === false) {
+                throw new UnauthorizedException(ErrorConstants.USER_IS_BLOCKED(user.email))
+            }
             if (isValid === true) {
                 const userRole = user.role as unknown as { _id: string, name: string };
                 const temp = await this.roleService.findOne(userRole._id);

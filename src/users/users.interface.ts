@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { ResumeInfo } from "./dto/update-user.dto";
 
 export interface IUser {
@@ -9,7 +10,7 @@ export interface IUser {
         name: string;
     };
     company?: {
-        _id: string;
+        _id: mongoose.Schema.Types.ObjectId;
         name: string;
     };
     avatar: string;

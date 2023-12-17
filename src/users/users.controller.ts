@@ -115,6 +115,17 @@ export class UsersController {
     @Body() updateUserPasswordDto: UpdateUserPasswordDto) {
     return this.usersService.changePassword(resetPasswordToken, updateUserPasswordDto);
   }
+
+
+  @Get("/jobs/prefer-jobs")
+  @ResponseMessage("get prefer jobs successfully")
+  // swagger
+  @ApiBearerAuth('token')
+  @ApiOperation({ summary: `For get user's prefer jobs` })
+  async getAllPreferJob(@User() user: IUser) {
+    let result = await this.usersService.getAllPreferJob(user);
+    return result;
+  }
 }
 
 

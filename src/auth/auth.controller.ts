@@ -10,7 +10,6 @@ import { AuthService } from "./auth.service";
 import { LocalAuthGuard } from "./guard/local-auth.guard";
 import { UsersService } from "src/users/users.service";
 import { CompaniesService } from "src/companies/companies.service";
-import { logger } from "handlebars";
 
 
 @ApiTags("authentications")
@@ -20,8 +19,6 @@ export class AuthController {
         private authService: AuthService,
         private roleService: RolesService,
         private usersService: UsersService,
-        private companyService: CompaniesService
-        // private
     ) { }
 
     @Post('/logout')
@@ -66,16 +63,13 @@ export class AuthController {
         user.permissions = temp.permissions;
 
         const getUser = await this.usersService.findUsersById(user._id);
-        let getCompany = getUser.company as any;
-        let companyName = "";
-        if (getCompany) {
-            companyName = (await this.companyService.findOne(getCompany?._id))?.name;
-            getCompany.name = companyName;
+        if (getUser && getUser.company) {
+            user.company = getUser.company as any;
         }
 
-        user.avatar = getUser.avatar;
-        user.listCv = getUser.listCv;
-        user.company = getCompany;
+        if (getUser && getUser.avatar) {
+            user.avatar = getUser.avatar
+        }
         return { user }
     }
 
@@ -89,14 +83,12 @@ export class AuthController {
         return this.authService.userRegister(registerUserDto);
     }
 
-
     @Public()
     @UseGuards(LocalAuthGuard)
     @UseGuards(ThrottlerGuard)
     @Throttle(60, 60)
     @Post('/login')
     @ResponseMessage('login successfully')
-    // swagger
     @ApiOperation({ summary: 'For login' })
     @ApiBody({ type: UserLoginDto })
     handleLogin(
@@ -108,7 +100,6 @@ export class AuthController {
     @Public()
     @Post('/recruiter-register')
     @ResponseMessage('recruiter register successfully')
-    // swagger
     @ApiOperation({ summary: 'For recruiter register' })
     @ApiBody({ type: RegisterRecruiterDto })
     recruiterRegister(
