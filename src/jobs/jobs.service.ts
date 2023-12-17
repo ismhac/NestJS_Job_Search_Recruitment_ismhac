@@ -137,9 +137,15 @@ export class JobsService {
       .skip(offset)
       .limit(defaultLimit)
       .sort(sort as any)
-      .populate(population)
+      .populate(
+        {
+          path: "company",
+          select: { logo: 1 }
+        }
+      )
+      .select({ name: 1, skills: 1, salary: 1, level: 1, location: 1 })
       .exec();
-
+    //
     return {
       meta: {
         current: currentPage,

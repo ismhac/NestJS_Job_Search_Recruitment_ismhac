@@ -15,7 +15,7 @@ export class Job extends BaseSchema {
     @Prop()
     skills: string[];
 
-    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: Company.name })
+    @Prop({ type: mongoose.Schema.Types.ObjectId, ref: "Company" })
     company: mongoose.Schema.Types.ObjectId;
 
     @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: "USer" })

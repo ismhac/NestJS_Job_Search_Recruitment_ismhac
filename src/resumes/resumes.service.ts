@@ -30,11 +30,11 @@ export class ResumesService {
       .sort("-createdAt")
       .populate([
         {
-          path: "companyId", // join 
+          path: "company", // join 
           select: { name: 1 }
         },
         {
-          path: "jobId", // join
+          path: "job", // join
           select: { name: 1 }
         }
       ]);
