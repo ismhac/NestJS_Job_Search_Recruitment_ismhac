@@ -44,7 +44,7 @@ export class ResumesService {
     const { file, companyId, jobId } = createUserCvDto;
     const { email, _id } = user;
 
-    const existingResume = await this.resumeModel.findOne({ jobId, userId: _id });
+    const existingResume = await this.resumeModel.findOne({ job: jobId, user: _id });
     if (existingResume) throw new BadRequestException(ErrorConstants.RESUME_IS_EXIST(user._id, jobId.toString()))
 
     const newResume = await this.resumeModel.create({

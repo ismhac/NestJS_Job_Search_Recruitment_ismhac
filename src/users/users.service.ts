@@ -98,6 +98,10 @@ export class UsersService {
       "file": 1,
     }).populate({
       path: "job",
+      populate: {
+        path: "company",
+        select: { logo: 1, name: 1 }
+      },
       select: {
         "name": 1,
         "company": 1,
