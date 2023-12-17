@@ -70,6 +70,7 @@ export class AuthController {
         if (getUser && getUser.avatar) {
             user.avatar = getUser.avatar
         }
+        user.listCv = getUser.listCv
         return { user }
     }
 
