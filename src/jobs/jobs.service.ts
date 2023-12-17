@@ -143,7 +143,7 @@ export class JobsService {
           select: { logo: 1, name: 1 }
         }
       )
-      .select({ name: 1, skills: 1, salary: 1, level: 1, location: 1, startDate: 1, endDate: 1, appliedUsers: 1 })
+      .select({ name: 1, skills: 1, salary: 1, level: 1, location: 1, startDate: 1, endDate: 1, appliedUsers: 1, isActive: 1 })
       .exec();
     //
     return {
