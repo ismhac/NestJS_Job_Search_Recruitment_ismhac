@@ -26,6 +26,7 @@
     "w2": "npm run watch:start:prod"
   },
   "dependencies": {
+    "@appland/appmap-agent-js": "^14.2.0",
     "@nestjs-modules/mailer": "1.9.1",
     "@nestjs/axios": "^3.0.1",
     "@nestjs/common": "^10.2.10",

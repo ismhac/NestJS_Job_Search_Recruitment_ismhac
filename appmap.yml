@@ -1,0 +1,8 @@
+name: RM_BE_NestJS
+packages:
+  - path: dist
+  - path: documentation\js
+  - path: src
+  - path: test
+language: javascript
+appmap_dir: tmp/appmap
