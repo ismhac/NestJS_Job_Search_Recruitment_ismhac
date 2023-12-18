@@ -456,7 +456,14 @@ export class UsersService {
         $in: likeJobList.likeJobs
       },
       isActive: true
-    }).select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description")
+    })
+      .populate([
+        {
+          path: "company",
+          select: { name: 1, logo: 2 }
+        }
+      ])
+      .select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description")
     return { jobs }
   }
 
