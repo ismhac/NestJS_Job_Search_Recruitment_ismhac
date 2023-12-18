@@ -93,7 +93,7 @@ export class UsersService {
     const resumes = await this.ResumeModule.find(
       {
         $and: [
-          { user: user._id },
+          { user: user._id }
         ]
       }
 
@@ -108,6 +108,7 @@ export class UsersService {
         path: "company",
         select: { logo: 1, name: 1 }
       },
+      match: { isActive: true, isDeleted: false },
       select: {
         "name": 1,
         "company": 1,
@@ -128,7 +129,7 @@ export class UsersService {
         status: resume.status,
       },
       jobInfo: resume.job
-    }));
+    })).filter(item => item.jobInfo !== null);
 
     return customizedResumes;
   }
