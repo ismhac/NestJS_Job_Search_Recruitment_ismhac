@@ -126,6 +126,15 @@ export class UsersController {
     let result = await this.usersService.getAllPreferJob(user);
     return result;
   }
+
+  @Patch("/jobs/:jobId/un-apply-jobs")
+  @ResponseMessage("un apply job successfully")
+  @ApiBearerAuth('token')
+  @ApiOperation({ summary: `For user un apply a job` })
+  async unApplyJob(@User() user: IUser, @Param("jobId") jobId: string) {
+    let result = await this.usersService.unApplyJob(user, jobId);
+    return result;
+  }
 }
 
 

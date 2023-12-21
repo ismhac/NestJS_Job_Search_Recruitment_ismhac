@@ -45,6 +45,42 @@ export class UsersService {
 
   private readonly logger = new Logger(UsersService.name);
 
+  async unApplyJob(user: IUser, jobId: string) {
+    try {
+      let existingJobs = await this.JobModule.findById({ _id: jobId });
+      if (!existingJobs) {
+        throw new BadRequestException(ErrorConstants.NOT_FOUND_JOB_ID(jobId))
+      }
+      let updatedJob = await this.JobModule.updateOne(
+        { _id: jobId },
+        {
+          $pull: {
+            appliedUsers: user._id
+          },
+          updatedBy: {
+            _id: user._id,
+            email: user.email
+          }
+        }
+      )
+      let updatedUser = await this.userModel.updateOne(
+        { _id: user._id },
+        {
+          $pull: {
+            appliedJobs: jobId
+          },
+          updatedBy: {
+            _id: user._id,
+            email: user.email
+          }
+        }
+      )
+      return { updatedUser, updatedJob }
+    } catch (error) {
+      throw Exception
+    }
+  }
+
   async changePassword(resetPasswordToken: string, updateUserPasswordDto: UpdateUserPasswordDto) {
     const userRequestChangePass = await this.userModel.findOne({ resetPasswordToken: resetPasswordToken });
 
