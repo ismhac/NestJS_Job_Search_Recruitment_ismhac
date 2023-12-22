@@ -45,54 +45,97 @@ export class ResumesService {
     const { email, _id } = user;
 
     const existingResume = await this.resumeModel.findOne({ job: jobId, user: _id });
-    if (existingResume) throw new BadRequestException(ErrorConstants.RESUME_IS_EXIST(user._id, jobId.toString()))
 
-    const newResume = await this.resumeModel.create({
 
-      email: email,
-      user: user._id,
-      file: file,
-      status: "PENDING",
-      company: companyId,
-      job: jobId,
-      history: [
+    const existingResume2 = await this.resumeModel.find({ job: jobId, user: _id });
+
+    if (existingResume) {
+      existingResume.updateOne({}, {
+        isDeleted: false,
+        updatedBy: {
+          _id: user._id,
+          email: user.email
+        }
+      })
+
+      await this.jobModel.updateOne(
+        { _id: jobId },
         {
-          status: "PENDING",
-          updateAt: new Date,
-          updateBy: {
+          $addToSet: {
+            appliedUsers: user._id
+          },
+          updatedBy: {
             _id: user._id,
             email: user.email
           }
         }
-      ]
-    })
+      )
 
-    await this.jobModel.updateOne(
-      { _id: jobId },
-      {
-        $addToSet: {
-          appliedUsers: user._id
-        },
-        updatedBy: {
-          _id: user._id,
-          email: user.email
+      await this.userModel.updateOne(
+        { _id: user._id },
+        {
+          $addToSet: {
+            appliedJobs: jobId
+          },
+          updatedBy: {
+            _id: user._id,
+            email: user.email
+          }
         }
-      }
-    )
+      )
+      return existingResume;
+    } else {
+      const newResume = await this.resumeModel.create({
 
-    await this.userModel.updateOne(
-      { _id: user._id },
-      {
-        $addToSet: {
-          appliedJobs: jobId
-        },
-        updatedBy: {
-          _id: user._id,
-          email: user.email
+        email: email,
+        user: user._id,
+        file: file,
+        status: "PENDING",
+        company: companyId,
+        job: jobId,
+        history: [
+          {
+            status: "PENDING",
+            updateAt: new Date,
+            updateBy: {
+              _id: user._id,
+              email: user.email
+            }
+          }
+        ]
+      })
+
+      await this.jobModel.updateOne(
+        { _id: jobId },
+        {
+          $addToSet: {
+            appliedUsers: user._id
+          },
+          updatedBy: {
+            _id: user._id,
+            email: user.email
+          }
         }
-      }
-    )
-    return newResume;
+      )
+
+      await this.userModel.updateOne(
+        { _id: user._id },
+        {
+          $addToSet: {
+            appliedJobs: jobId
+          },
+          updatedBy: {
+            _id: user._id,
+            email: user.email
+          }
+        }
+      )
+      return newResume;
+    }
+
+    // throw new BadRequestException(ErrorConstants.RESUME_IS_EXIST(user._id, jobId.toString()))
+
+
   }
 
   async findAll(currentPage: number, limit: number, queryString: string) {
