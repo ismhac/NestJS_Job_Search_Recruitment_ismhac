@@ -1,19 +1,28 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateResumeDto, CreateUserCvDto } from './dto/create-resume.dto';
-import { UpdateResumeDto } from './dto/update-resume.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Resume, ResumeDocument } from './schemas/resume.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IUser } from 'src/users/users.interface';
 import mongoose from 'mongoose';
 import aqp from 'api-query-params';
+import { User, UserDocument } from 'src/users/schemas/user.schema';
+import { Job, JobDocument } from 'src/jobs/schemas/job.schema';
+import { ErrorConstants } from 'src/utils/ErrorConstants';
 
 @Injectable()
 export class ResumesService {
 
   constructor(
     @InjectModel(Resume.name)
-    private resumeModel: SoftDeleteModel<ResumeDocument>
+    private resumeModel: SoftDeleteModel<ResumeDocument>,
+
+    @InjectModel(User.name)
+    private userModel: SoftDeleteModel<UserDocument>,
+
+    @InjectModel(Job.name)
+    private jobModel: SoftDeleteModel<JobDocument>,
+
   ) { }
 
   async findByUsers(user: IUser) {
@@ -21,27 +30,31 @@ export class ResumesService {
       .sort("-createdAt")
       .populate([
         {
-          path: "companyId", // join 
+          path: "company", // join 
           select: { name: 1 }
         },
         {
-          path: "jobId", // join
+          path: "job", // join
           select: { name: 1 }
         }
       ]);
   }
 
   async create(createUserCvDto: CreateUserCvDto, user: IUser) {
-    const { url, companyId, jobId } = createUserCvDto;
+    const { file, companyId, jobId } = createUserCvDto;
     const { email, _id } = user;
 
-    const existingResume = await this.resumeModel.findOne({ jobId, userId: _id });
-    if (existingResume) throw new BadRequestException(`Resume of user with _id ${_id} for job ${jobId} is already exist`)
+    const existingResume = await this.resumeModel.findOne({ job: jobId, user: _id });
+    if (existingResume) throw new BadRequestException(ErrorConstants.RESUME_IS_EXIST(user._id, jobId.toString()))
 
-    const newCv = await this.resumeModel.create({
-      url, companyId, jobId, email, userId: _id,
+    const newResume = await this.resumeModel.create({
+
+      email: email,
+      user: user._id,
+      file: file,
       status: "PENDING",
-      createdBy: { _id, email },
+      company: companyId,
+      job: jobId,
       history: [
         {
           status: "PENDING",
@@ -53,7 +66,33 @@ export class ResumesService {
         }
       ]
     })
-    return newCv;
+
+    await this.jobModel.updateOne(
+      { _id: jobId },
+      {
+        $addToSet: {
+          appliedUsers: user._id
+        },
+        updatedBy: {
+          _id: user._id,
+          email: user.email
+        }
+      }
+    )
+
+    await this.userModel.updateOne(
+      { _id: user._id },
+      {
+        $addToSet: {
+          appliedJobs: jobId
+        },
+        updatedBy: {
+          _id: user._id,
+          email: user.email
+        }
+      }
+    )
+    return newResume;
   }
 
   async findAll(currentPage: number, limit: number, queryString: string) {

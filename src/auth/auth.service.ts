@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from "express";
@@ -7,6 +7,7 @@ import { RolesService } from 'src/roles/roles.service';
 import { RegisterRecruiterDto, RegisterUserDto } from 'src/users/dto/create-user.dto';
 import { IUser } from 'src/users/users.interface';
 import { UsersService } from 'src/users/users.service';
+import { ErrorConstants } from 'src/utils/ErrorConstants';
 
 @Injectable()
 export class AuthService {
@@ -45,7 +46,7 @@ export class AuthService {
                 const refresh_token = this.createRefreshToken(payload);
 
                 // update user with refresh token
-                response.clearCookie("refresh_token");
+                // response.clearCookie("refresh_token");
                 await this.usersService.updateUserToken(refresh_token, _id.toString())
 
                 // fetch user's role
@@ -103,8 +104,12 @@ export class AuthService {
 
     async validateUser(username: string, pass: string): Promise<any> {
         const user = await this.usersService.findOneByUsername(username);
+        const userIsDeletedFalse = await this.usersService.checkUSerIsDeletedFalse(username);
         if (user) {
             const isValid = this.usersService.isValidPassword(pass, user.password);
+            if (userIsDeletedFalse === false) {
+                throw new UnauthorizedException(ErrorConstants.USER_IS_BLOCKED(user.email))
+            }
             if (isValid === true) {
                 const userRole = user.role as unknown as { _id: string, name: string };
                 const temp = await this.roleService.findOne(userRole._id);
@@ -129,8 +134,6 @@ export class AuthService {
             email,
             role,
             avatar,
-            // listCv
-            // permissions
         }
 
         const refresh_token = this.createRefreshToken(payload);
@@ -145,17 +148,11 @@ export class AuthService {
         // })
 
         return {
-            access_token: this.jwtService.sign(payload),
+            access_token: this.jwtService.sign(payload, {
+                secret: this.configService.get<string>("JWT_ACCESS_TOKEN_SECRET"),
+                expiresIn: ms(this.configService.get<string>('JWT_ACCESS_EXPIRE')) / 1000,
+            }),
             refresh_token: refresh_token,
-            // user: {
-            //     _id,
-            //     name,
-            //     email,
-            //     role,
-            //     avatar,
-            //     listCv,
-            //     // permissions
-            // }
         };
     }
 }

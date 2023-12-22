@@ -95,18 +95,8 @@ export class PermissionsService {
   }
 
   // 
-  async initializePermissions(permissions: { apiPath: string, method: string }[]) {
-    for (const permission of permissions) {
-      await this.createIfNotExists(permission);
-    }
-  }
-
-  private async createIfNotExists(permission: { apiPath: string, method: string }) {
-    const existingPermission = await this.permissionModel.findOne(permission).exec();
-
-    if (!existingPermission) {
-      const newPermission = new this.permissionModel(permission);
-      await newPermission.save();
-    }
+  async initializePermissions(permissions: { apiPath: string, method: string, module: string }[]) {
+    await this.permissionModel.deleteMany({});
+    await this.permissionModel.insertMany(permissions);
   }
 }

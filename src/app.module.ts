@@ -18,8 +18,8 @@ import { ResumesModule } from './resumes/resumes.module';
 import { RolesModule } from './roles/roles.module';
 import { SubscribersModule } from './subscribers/subscribers.module';
 import { UsersModule } from './users/users.module';
-import { DatabasesService } from './databases/databases.service';
-import { DatabasesController } from './databases/databases.controller';
+import { UserProfilesModule } from './user_profiles/user_profiles.module';
+import { UserRegisterTempsModule } from './user_register_temps/user_register_temps.module';
 
 @Module({
   imports: [
@@ -55,6 +55,8 @@ import { DatabasesController } from './databases/databases.controller';
     SubscribersModule,
     MailModule,
     HealthModule,
+    UserProfilesModule,
+    UserRegisterTempsModule,
   ],
   controllers: [AppController],
   providers: [

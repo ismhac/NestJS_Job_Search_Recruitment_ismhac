@@ -1,17 +1,16 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Res, UploadedFile, UseFilters, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Param, Post, Res, UploadedFile, UseFilters, UseInterceptors } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import { HttpExceptionFilter } from 'src/core/http-exception.filter';
-import { Public, ResponseMessage } from 'src/decorator/customize';
-import { UpdateFileDto } from './dto/update-file.dto';
-import { FilesService } from './files.service';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import axios from 'axios';
 import { Response } from 'express';
-import { ConfigService } from '@nestjs/config';
-import { google } from 'googleapis';
 import fs from 'fs';
+import { google } from 'googleapis';
+import { HttpExceptionFilter } from 'src/core/http-exception.filter';
+import { ResponseMessage } from 'src/decorator/customize';
+import { FilesService } from './files.service';
 
-@ApiTags('APIs for Managing File Information')
+@ApiTags('files')
 @Controller('files')
 export class FilesController {
   constructor(
@@ -19,13 +18,8 @@ export class FilesController {
     private configService: ConfigService,
   ) { }
 
-  @Public()
-  @Post('upload')
-  @UseFilters(new HttpExceptionFilter())
-  @ResponseMessage('Upload file successfully')
-  @UseInterceptors(FileInterceptor('fileUpload'))
-  //  swagger
-  @ApiOperation({ summary: 'API upload file' })
+  @ApiBearerAuth('token')
+  @ApiOperation({ summary: 'For upload a file' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -38,6 +32,10 @@ export class FilesController {
       },
     },
   })
+  @Post('upload')
+  @UseFilters(new HttpExceptionFilter())
+  @ResponseMessage('upload a file successfully')
+  @UseInterceptors(FileInterceptor('fileUpload'))
   async uploadFile(@UploadedFile() file: Express.Multer.File) {
     const CLIENT_ID = this.configService.get<string>('CLIENT_ID');
     const CLIENT_SECRET = this.configService.get<string>('CLIENT_SECRET');
@@ -53,14 +51,13 @@ export class FilesController {
       auth: oauth2Client
     });
 
-
     const folders = await drive.files.list({
       q: `mimeType='application/vnd.google-apps.folder' and name='${FOLDER_NAME}'`,
     });
-    let folderId;
 
-    if (folders.data.files.length === 0) {
-      // Thư mục chưa tồn tại, tạo thư mục mới
+    let folderId = folders.data.files.length > 0 ? folders.data.files[0].id : null;
+
+    if (!folderId) {
       const folder = await drive.files.create({
         requestBody: {
           name: FOLDER_NAME,
@@ -68,17 +65,13 @@ export class FilesController {
         },
       });
       folderId = folder.data.id;
-    } else {
-      // Thư mục đã tồn tại, lấy id của nó
-      folderId = folders.data.files[0].id;
     }
 
-    // Tải file lên thư mục vừa tạo hoặc đã tồn tại
     const response = await drive.files.create({
       requestBody: {
         name: file.filename,
         mimeType: file.mimetype,
-        parents: [folderId], // Sử dụng id của thư mục làm cha
+        parents: [folderId],
       },
       media: {
         mimeType: file.mimetype,
@@ -88,59 +81,50 @@ export class FilesController {
 
     fs.unlinkSync(file.path);
 
-    // Lấy đường dẫn trên Google Drive bằng cách kết hợp id với URL cơ bản của Google Drive
-    const fileUrl = `https://drive.google.com/uc?id=${response.data.id}`;
+    const url = `https://drive.google.com/uc?id=${response.data.id}`;
+    const name = file.filename;
 
-    return {
-      fileName: file.filename,
-      fileId: response.data.id,
-      fileUrl: fileUrl,
-    }
+    const fileResponse: Object = {};
+    fileResponse['url'] = url;
+    fileResponse['name'] = name;
+
+    return fileResponse;
   }
 
-  @Public()
-  @Get('download-file/:fileId')
+  @Get('download-file/:url')
+  @ResponseMessage("download a file successfully")
   //  swagger
-  @ApiOperation({ summary: 'API download file' })
-  async downloadFileFromURL(
-    @Res() res: Response,
-    @Param('fileId') fileId: string) {
+  @ApiBearerAuth('token')
+  @ApiOperation({ summary: 'For download a file' })
+  async downloadFileFromURL(@Res() res: Response, @Param('url') url: string) {
     try {
-      const url = `https://drive.google.com/uc?id=${fileId}`;
       const response = await axios.get(url, { responseType: 'stream' });
 
+      const filename = this.getFilename(response.headers['content-disposition']) || String(Date.now());
+
       const contentType = response.headers['content-type'];
-      const fileExtension = contentType.split('/').pop(); // Lấy phần mở rộng từ kiểu MIME
+      const fileExtension = contentType.split('/').pop();
 
       if (fileExtension) {
         res.setHeader('Content-Type', contentType);
-        res.setHeader('Content-Disposition', `attachment; filename="${fileId}.${fileExtension}"`);
+        res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
       } else {
         throw new Error('The file type cannot be identified !');
       }
-      response.data.pipe(res);
+
+      const result = await response.data.pipe(res);
+      return { filename: filename, file: result };
     } catch (error) {
-      res.status(500).send(error);
+      res.status(500).send({ message: error.message, stack: error.stack });
     }
   }
 
-  // @Get()
-  // findAll() {
-  //   return this.filesService.findAll();
-  // }
-
-  // @Get(':id')
-  // findOne(@Param('id') id: string) {
-  //   return this.filesService.findOne(+id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateFileDto: UpdateFileDto) {
-  //   return this.filesService.update(+id, updateFileDto);
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.filesService.remove(+id);
-  // }
+  getFilename(contentDisposition) {
+    const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+    let matches = filenameRegex.exec(contentDisposition);
+    if (matches != null && matches[1]) {
+      return matches[1].replace(/['"]/g, '');
+    }
+    return '';
+  }
 }

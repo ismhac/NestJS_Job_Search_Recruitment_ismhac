@@ -6,7 +6,8 @@
     "deleteOutDir": true,
     "assets": [
       "mail/templates/**/*",
-      "users/templates/**/*"
+      "users/templates/**/*", 
+      "user_register_temps/templates/**/*"
     ],
     "watchAssets": true,
     "plugins": [

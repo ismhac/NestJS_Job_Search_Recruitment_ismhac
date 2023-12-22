@@ -10,6 +10,8 @@ import { UsersService } from 'src/users/users.service';
 import { Company, CompanySchema } from 'src/companies/schemas/company.schema';
 import { Job, JobSchema } from 'src/jobs/schemas/job.schema';
 import { Resume, ResumeSchema } from 'src/resumes/schemas/resume.schema';
+import { UserProfile, UserProfileSchema } from 'src/user_profiles/schemas/user_profile.schema';
+import { UserRegisterTempSchema, UsersRegisterTemp } from 'src/user_register_temps/schema/user_register_temp.schema';
 
 
 @Module({
@@ -22,7 +24,9 @@ import { Resume, ResumeSchema } from 'src/resumes/schemas/resume.schema';
       { name: Role.name, schema: RoleSchema },
       { name: Company.name, schema: CompanySchema },
       { name: Job.name, schema: JobSchema },
-      { name: Resume.name, schema: ResumeSchema }
+      { name: Resume.name, schema: ResumeSchema },
+      { name: UserProfile.name, schema: UserProfileSchema },
+      { name: UsersRegisterTemp.name, schema: UserRegisterTempSchema }
     ])
   ],
 })

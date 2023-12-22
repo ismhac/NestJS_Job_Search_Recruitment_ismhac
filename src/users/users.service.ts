@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import aqp from 'api-query-params';
 import { compareSync, genSaltSync, hashSync } from 'bcryptjs';
@@ -8,13 +8,16 @@ import { ROLE_HR, ROLE_USER } from 'src/databases/sample';
 import { User as UserDecorator } from 'src/decorator/customize';
 import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
 import { CreateUserDto, RegisterRecruiterDto, RegisterUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateUserDto, UpdateUserPasswordDto } from './dto/update-user.dto';
 import { UserDocument, User as UserModel } from './schemas/user.schema';
 import { IUser } from './users.interface';
 import { Company, CompanyDocument } from 'src/companies/schemas/company.schema';
 import { Job, JobDocument } from 'src/jobs/schemas/job.schema';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Resume, ResumeDocument } from 'src/resumes/schemas/resume.schema';
+import * as crypto from 'crypto';
+import { ErrorConstants } from 'src/utils/ErrorConstants';
+import { Exception } from 'handlebars/runtime';
 
 
 @Injectable()
@@ -39,6 +42,73 @@ export class UsersService {
     private mailerService: MailerService,
   ) { }
 
+  private readonly logger = new Logger(UsersService.name);
+
+  async unApplyJob(user: IUser, jobId: string) {
+    try {
+      let existingJobs = await this.JobModule.findById({ _id: jobId });
+      if (!existingJobs) {
+        throw new BadRequestException(ErrorConstants.NOT_FOUND_JOB_ID(jobId))
+      }
+      let updatedJob = await this.JobModule.updateOne(
+        { _id: jobId },
+        {
+          $pull: {
+            appliedUsers: user._id
+          },
+          updatedBy: {
+            _id: user._id,
+            email: user.email
+          }
+        }
+      )
+      let updatedUser = await this.userModel.updateOne(
+        { _id: user._id },
+        {
+          $pull: {
+            appliedJobs: jobId
+          },
+          updatedBy: {
+            _id: user._id,
+            email: user.email
+          }
+        }
+      )
+      return { updatedUser, updatedJob }
+    } catch (error) {
+      throw Exception
+    }
+  }
+
+  async changePassword(resetPasswordToken: string, updateUserPasswordDto: UpdateUserPasswordDto) {
+    const userRequestChangePass = await this.userModel.findOne({ resetPasswordToken: resetPasswordToken });
+
+    // Check if resetPasswordToken is valid
+    if (!userRequestChangePass) {
+      throw new BadRequestException(`Invalid token`);
+    }
+
+    // Check if resetPasswordToken has expired
+    if (Date.now() > userRequestChangePass.resetPasswordExpires.getTime()) {
+      throw new BadRequestException(`token has expired`);
+    }
+
+    const { inputNewPassWord, confirmNewPassWord } = updateUserPasswordDto;
+    if (inputNewPassWord !== confirmNewPassWord) {
+      throw new BadRequestException(`New password and confirm password are not matched`);
+    }
+
+    const hashPassword = this.getHashPassword(inputNewPassWord);
+    const userUpdatePass = await this.userModel.updateOne(
+      { _id: userRequestChangePass._id },
+      {
+        password: hashPassword,
+      }
+    );
+
+    return userUpdatePass;
+  }
+
   getHashPassword = (password: string) => {
     const salt = genSaltSync(10);
     const hash = hashSync(password, salt);
@@ -46,57 +116,92 @@ export class UsersService {
   }
 
   async findUsersById(id: String) {
-    return await this.userModel.findById(id);
+    return await this.userModel.findById(id).populate([
+      {
+        path: "company",
+        select: { name: 1, logo: 1 }
+      }
+    ]);
   }
 
-
-  async getAllApplyJob(userId: String) {
-    const resumes = await this.ResumeModule.find({ userId: userId }).select("+_id +jobId +status");
-    const jobs = await Promise.all(resumes.map(async (resume) => {
-      let job = await this.JobModule.findById(resume.jobId).select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description");
-      return { job, status: resume.status }
-    }));
-
-    console.log(jobs);
-    return { jobs }
-  }
-
-
-  async getAllPreferJob(userId: String) {
-    const preferJobs = await this.userModel.findById(userId);
-
-    console.log(preferJobs);
-
-    const jobs = await this.JobModule.find({
-      _id: {
-        $in: preferJobs?.preferJobs
+  async getAllApplyJob(user: IUser) {
+    let listAppliedJob = await this.userModel.findById(user._id).select({ appliedJobs: 1 })
+    const resumes = await this.ResumeModule.find(
+      {
+        $and: [
+          { user: user._id },
+          {
+            job: {
+              $in: listAppliedJob.appliedJobs
+            }
+          }
+        ]
+      }
+    ).select({
+      "_id": 1,
+      "job": 1,
+      "status": 1,
+      "file": 1,
+    }).populate({
+      path: "job",
+      populate: {
+        path: "company",
+        select: { logo: 1, name: 1 }
       },
-      isActive: true
-    }).select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description")
+      match: { isActive: true, isDeleted: false },
+      select: {
+        "name": 1,
+        "company": 1,
+        "location": 1,
+        "salary": 1,
+        "quantity": 1,
+        "level": 1,
+        "startDate": 1,
+        "endDate": 1,
+        "isActive": 1
+      }
+    });
 
-    return { jobs }
+    const customizedResumes = resumes.map(resume => ({
+      resumeInfo: {
+        _id: resume._id,
+        file: resume.file,
+        status: resume.status,
+      },
+      jobInfo: resume.job
+    })).filter(item => item.jobInfo !== null);
+
+    return customizedResumes;
   }
 
-
-  requestPasswordReset = async (email) => {
-
+  async requestPasswordReset(email) {
     const existingUser = await this.userModel.findOne({ email });
 
-    if (!existingUser) throw new Error(`Email ${email} does not exist`);
+    if (!existingUser) throw new BadRequestException(`Email ${email} does not exist`);
 
-    const resetPasswordLink = `hhhh`;
+    const resetToken = crypto.randomBytes(20).toString('hex');
+    existingUser.resetPasswordToken = resetToken;
+    existingUser.resetPasswordExpires = new Date(Date.now() + 60 * 10 * 1000); // 10 minutes
+    await existingUser.save();
+
+    const resetPasswordLink = `https://job-app-ivory.vercel.app/forget-password-confirmation/${resetToken}`;
+
     await this.mailerService.sendMail({
       to: email,
-      from: '"Support Team" <support@itjobs.com>', // override default from
-      subject: 'Welcome to Nice App! Confirm your Email',
+      from: '"Support Team" <support@itjobs.com>',
+      subject: 'Reset your password',
       template: 'resetPass',
       context: {
         name: existingUser.name,
         link: resetPasswordLink,
       }
-    })
-    return "OK";
-  };
+    });
+
+    return {
+      email: existingUser.email,
+      resetPasswordLink
+    }
+  }
 
   findUserByToken = async (refreshToken: string) => {
     return await this.userModel.findOne(
@@ -114,90 +219,79 @@ export class UsersService {
     )
   }
 
-  async addPreferJob(userId: string, jobId: string) {
-    let existingJobs = await this.JobModule.findById({ _id: jobId });
-    let existingUser = await this.userModel.findById({ _id: userId });
-    if (!existingJobs) {
-      throw new BadRequestException(`Job: ${jobId} does not exist in the system. Please use another job!`)
-    }
-    if (!existingUser) {
-      throw new BadRequestException(`User: ${userId} does not exist in the system. Please use another user!`)
-    }
+  async addToLikeJobs(user: IUser, jobId: string) {
+    try {
+      let isExistJob = await this.JobModule.exists({ _id: jobId });
+      if (!isExistJob) {
+        throw new BadRequestException(ErrorConstants.NOT_FOUND_JOB_ID(jobId));
+      }
 
-    let updatedJob = await this.JobModule.updateOne(
-      { _id: jobId },
-      {
-        $addToSet: {
-          preferredUsers: {
-            _id: userId,
-            name: existingUser.name,
-            email: existingUser.email
+      let updatedUser = await this.userModel.updateOne(
+        { _id: user._id },
+        {
+          $addToSet: {
+            likeJobs: jobId
+          },
+          updatedBy: {
+            _id: user._id,
+            email: user.email
           }
-        },
-        updatedBy: {
-          _id: existingUser._id,
-          email: existingUser.email
         }
-      }
-    )
-    let updatedUser = await this.userModel.updateOne(
-      { _id: userId },
-      {
-        $addToSet: {
-          preferJobs: {
-            _id: jobId,
-            name: existingJobs.name
+      );
+
+      let updateJob = await this.JobModule.updateOne(
+        { _id: jobId },
+        {
+          $addToSet: {
+            likedUsers: user._id
+          },
+          updatedBy: {
+            _id: user._id,
+            email: user.email
           }
-        },
-        updatedBy: {
-          _id: existingUser._id,
-          email: existingUser.email
         }
-      }
-    )
-    return {
-      addPreferredUsers: updatedJob,
-      addPreferJobs: updatedUser
+      );
+
+      return { updatedUser, updateJob }
+
+    } catch (error) {
+      throw Exception;
     }
   }
 
-  async unPreferJob(userId: string, jobId: string) {
-    let existingJobs = await this.JobModule.findById({ _id: jobId });
-    let existingUser = await this.userModel.findById({ _id: userId });
-    if (!existingJobs) {
-      throw new BadRequestException(`Job: ${jobId} does not exist in the system. Please use another job!`)
-    }
-    if (!existingUser) {
-      throw new BadRequestException(`User: ${userId} does not exist in the system. Please use another user!`)
-    }
-
-    let updatedJob = await this.JobModule.updateOne(
-      { _id: jobId },
-      {
-        $pull: {
-          preferredUsers: { _id: userId }
-        },
-        updatedBy: {
-          _id: existingUser._id,
-          email: existingUser.email
-        }
+  async unLikeAJob(user: IUser, jobId: string) {
+    try {
+      let existingJobs = await this.JobModule.findById({ _id: jobId });
+      if (!existingJobs) {
+        throw new BadRequestException(ErrorConstants.NOT_FOUND_JOB_ID(jobId))
       }
-    )
-    let updatedUser = await this.userModel.updateOne(
-      { _id: userId },
-      {
-        $pull: {
-          preferJobs: { _id: jobId }
-        },
-        updatedBy: {
-          _id: existingUser._id,
-          email: existingUser.email
+      let updatedJob = await this.JobModule.updateOne(
+        { _id: jobId },
+        {
+          $pull: {
+            likedUsers: user._id
+          },
+          updatedBy: {
+            _id: user._id,
+            email: user.email
+          }
         }
-      }
-    )
-    return {
-      removePreferredUsers: updatedJob,
-      removePreferJobs: updatedUser
+      )
+      let updatedUser = await this.userModel.updateOne(
+        { _id: user._id },
+        {
+          $pull: {
+            likeJobs: jobId
+          },
+          updatedBy: {
+            _id: user._id,
+            email: user.email
+          }
+        }
+      )
+      return { updatedUser, updatedJob }
+    } catch (error) {
+      throw Exception
     }
   }
 
@@ -271,10 +365,7 @@ export class UsersService {
       }
     })
 
-    newRecruiter.company = {
-      _id: newCompany._id as any,
-      name: newCompany.name
-    };
+    newRecruiter.company = newCompany._id as any;
 
     await newRecruiter.save();
 
@@ -338,13 +429,13 @@ export class UsersService {
     }
   }
 
-  async findOne(id: string) {
-    if (!mongoose.Types.ObjectId.isValid(id)) {
+  async findOne(user: IUser) {
+    if (!mongoose.Types.ObjectId.isValid(user._id)) {
       return 'not found user';
     }
 
     return await this.userModel.findOne({
-      _id: id
+      _id: user._id
     })
       .select('-password') // exclude
       .populate({ path: "role", select: { name: 1, _id: 1, } })
@@ -395,5 +486,39 @@ export class UsersService {
       }
     )
     return this.userModel.softDelete({ _id: id })
+  }
+
+  async getAllPreferJob(user: IUser) {
+    const likeJobList = await this.userModel.findById(user._id)
+      .select({ likeJobs: 1 });
+
+    const jobs = await this.JobModule.find({
+      _id: {
+        $in: likeJobList.likeJobs
+      },
+      isActive: true
+    })
+      .populate([
+        {
+          path: "company",
+          select: { name: 1, logo: 2 }
+        }
+      ])
+      .select("-deletedAt -deletedBy -createdAt -createdBy -updatedAt -updatedBy -preferredUsers -description")
+    return { jobs }
+  }
+
+  async checkUSerIsDeletedFalse(username: string) {
+    let user = await this.userModel.findOne({
+      $and: [
+        { email: username },
+        { isDeleted: false }
+      ]
+    });
+
+    if (!user) {
+      return false;
+    }
+    return true;
   }
 }
