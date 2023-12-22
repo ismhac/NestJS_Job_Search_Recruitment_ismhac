@@ -46,7 +46,7 @@ export class JobsService {
 
 
 
-    const appliedUsers = await this.resumeModel.find({ job: jobId })
+    let appliedUsers = await this.resumeModel.find({ job: jobId })
       .populate([
         {
           path: "user",
@@ -55,6 +55,8 @@ export class JobsService {
         }
       ])
       .select({ "job": 1, "email": 1, "file": 1, "status": 1, "createdAt": 1 });
+
+    appliedUsers = appliedUsers.filter(doc => doc.user != null);
     const totalItems = appliedUsers.length;
     const totalPages = Math.ceil(totalItems / filter.pageSize);
     const offset = (+filter.current - 1) * (+filter.pageSize);
