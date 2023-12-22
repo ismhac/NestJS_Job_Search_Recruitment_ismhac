@@ -18,7 +18,6 @@ import { Resume, ResumeDocument } from 'src/resumes/schemas/resume.schema';
 import * as crypto from 'crypto';
 import { ErrorConstants } from 'src/utils/ErrorConstants';
 import { Exception } from 'handlebars/runtime';
-import { emit } from 'process';
 
 
 @Injectable()
@@ -126,13 +125,18 @@ export class UsersService {
   }
 
   async getAllApplyJob(user: IUser) {
+    let listAppliedJob = await this.userModel.findById(user._id).select({ appliedJobs: 1 })
     const resumes = await this.ResumeModule.find(
       {
         $and: [
-          { user: user._id }
+          { user: user._id },
+          {
+            job: {
+              $in: listAppliedJob.appliedJobs
+            }
+          }
         ]
       }
-
     ).select({
       "_id": 1,
       "job": 1,

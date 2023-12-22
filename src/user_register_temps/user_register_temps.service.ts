@@ -59,7 +59,7 @@ export class UsersRegisterTempsService {
     await this.mailerService.sendMail({
       to: email,
       from: '"Support Team" <support@itjobs.com>',
-      subject: 'Reset your password',
+      subject: 'Register New Account',
       template: 'registerMail',
       context: {
         email: newTempUser.email,
