@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Optional, Param, Patch, Post, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/users.interface';
@@ -47,8 +47,8 @@ export class JobsController {
   @ResponseMessage('get a job successfully')
   // swagger
   @ApiOperation({ summary: 'For get a job information' })
-  findOne(@Param('id') id: string) {
-    let result = this.jobsService.findOne(id);
+  findOne(@Param('id') id: string, @Query() queryString: string) {
+    let result = this.jobsService.findOne(id, queryString);
 
     return result;
   }
