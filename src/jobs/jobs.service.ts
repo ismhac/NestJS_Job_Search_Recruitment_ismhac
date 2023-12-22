@@ -11,12 +11,16 @@ import { DatabasesService } from 'src/databases/databases.service';
 import { Resume, ResumeDocument } from 'src/resumes/schemas/resume.schema';
 import { Company, CompanyDocument } from 'src/companies/schemas/company.schema';
 import { ErrorConstants } from 'src/utils/ErrorConstants';
+import { User, UserDocument } from 'src/users/schemas/user.schema';
 
 @Injectable()
 export class JobsService {
   constructor(
     @InjectModel(Job.name)
     private jobModel: SoftDeleteModel<JobDocument>,
+
+    @InjectModel(User.name)
+    private userModel: SoftDeleteModel<UserDocument>,
 
     @InjectModel(Resume.name)
     private resumeModel: SoftDeleteModel<ResumeDocument>,
@@ -33,15 +37,24 @@ export class JobsService {
     let { filter } = aqp(queryString);
     filter.current = filter.current ? filter.current : 1;
     filter.pageSize = filter.pageSize ? filter.pageSize : 10;
+
+
+    // const users = await this.userModel.find(
+    //   { appliedJobs: { $in: [jobId] } })
+    //   .select({ appliedJobs: 1, name: 1, _id: 1 })
+    //   .populate({ path: "job", select: { _id: 1 } })
+
+
+
     const appliedUsers = await this.resumeModel.find({ job: jobId })
       .populate([
         {
           path: "user",
-          select: { name: 1 }
+          select: { name: 1, _id: 1 },
+          match: { appliedJobs: { $in: [jobId] } }
         }
       ])
       .select({ "job": 1, "email": 1, "file": 1, "status": 1, "createdAt": 1 });
-
     const totalItems = appliedUsers.length;
     const totalPages = Math.ceil(totalItems / filter.pageSize);
     const offset = (+filter.current - 1) * (+filter.pageSize);
