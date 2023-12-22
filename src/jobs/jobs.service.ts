@@ -12,6 +12,7 @@ import { Resume, ResumeDocument } from 'src/resumes/schemas/resume.schema';
 import { Company, CompanyDocument } from 'src/companies/schemas/company.schema';
 import { ErrorConstants } from 'src/utils/ErrorConstants';
 import { User, UserDocument } from 'src/users/schemas/user.schema';
+import { notStrictEqual } from 'assert';
 
 @Injectable()
 export class JobsService {
@@ -179,18 +180,43 @@ export class JobsService {
     }
   }
 
-  findOne(id: string) {
+  async findOne(id: string, queryString: string) {
     try {
       if (!mongoose.Types.ObjectId.isValid(id)) {
         throw new BadRequestException(ErrorConstants.NOT_FOUND_JOB_ID)
       }
-      let job = this.jobModel.findById(id)
-        .populate({
-          path: "company",
-          select: { name: 1, logo: 1 }
-        });
 
-      return job;
+      const { filter } = aqp(queryString)
+
+      if (!filter.userId) {
+        let job = await this.jobModel.findById(id)
+          .populate({
+            path: "company",
+            select: { name: 1, logo: 1 }
+          });
+
+        return job;
+      } else {
+
+        let checkApplied = false;
+        let user = await this.userModel.find({
+          $and: [
+            { _id: filter.userId },
+            { appliedJobs: { $in: [id] } }
+          ]
+        })
+
+        let job = await this.jobModel.findById(id)
+          .populate({
+            path: "company",
+            select: { name: 1, logo: 1 }
+          });
+
+        if (user.length > 0) checkApplied = true;
+        return { job: job, checkApplied: checkApplied };
+      }
+
+
 
     } catch (error) {
       throw new BadRequestException(ErrorConstants.NOT_FOUND_JOB_ID(id))
